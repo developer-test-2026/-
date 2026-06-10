@@ -1,14 +1,24 @@
-<h2>CSV生成</h2>
-<textarea id="input" style="width:100%;height:200px;"></textarea>
-<button onclick="gen()">生成</button>
+<h1>成績管理</h1>
+<table border="1" id="tbl"></table>
 
 <script>
-function gen(){
-  const text=document.getElementById("input").value;
-  const blob=new Blob([text],{type:"text/csv"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="questions.csv";
-  a.click();
+
+async function load(){
+
+  let res=await fetch("data.json");
+  let data=await res.json();
+
+  document.getElementById("tbl").innerHTML=
+  `<tr><th>名前</th><th>点数</th><th>不正</th></tr>`+
+  data.map(d=>
+    `<tr>
+      <td>${d.name}</td>
+      <td>${d.score}</td>
+      <td>${d.risk}</td>
+    </tr>`
+  ).join("");
 }
+
+load();
+
 </script>
