@@ -1,12 +1,13 @@
-<h1>成績管理</h1>
+<h1>成績一覧</h1>
+
 <table border="1" id="tbl"></table>
 
 <script>
 
 async function load(){
 
-  let res=await fetch("data.json");
-  let data=await res.json();
+  const res = await fetch("data.json");
+  const data = await res.json();
 
   document.getElementById("tbl").innerHTML=
   `<tr><th>名前</th><th>点数</th><th>不正</th></tr>`+
