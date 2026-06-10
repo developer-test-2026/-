@@ -1,25 +1,24 @@
-<h1>成績一覧</h1>
+<h1>成績管理</h1>
 
 <table border="1" id="tbl"></table>
 
 <script>
 
-async function load(){
+const data = JSON.parse(localStorage.getItem("last_result"));
 
-  const res = await fetch("data.json");
-  const data = await res.json();
-
-  document.getElementById("tbl").innerHTML=
-  `<tr><th>名前</th><th>点数</th><th>不正</th></tr>`+
-  data.map(d=>
-    `<tr>
-      <td>${d.name}</td>
-      <td>${d.score}</td>
-      <td>${d.risk}</td>
-    </tr>`
-  ).join("");
+if(!data){
+  document.getElementById("tbl").innerHTML =
+    "<tr><td>データがありません</td></tr>";
+}else{
+  document.getElementById("tbl").innerHTML =
+  `
+  <tr><th>名前</th><th>点数</th><th>不正</th></tr>
+  <tr>
+    <td>${data.name}</td>
+    <td>${data.score}</td>
+    <td>${data.risk}</td>
+  </tr>
+  `;
 }
-
-load();
 
 </script>
