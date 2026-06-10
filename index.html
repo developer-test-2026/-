@@ -15,7 +15,7 @@ body{margin:0;font-family:sans-serif;}
 }
 #login{max-width:500px;margin:40px auto;text-align:center;}
 input{width:90%;padding:10px;margin:5px;}
-button{padding:10px 20px;cursor:pointer;}
+button{padding:10px 20px;}
 #counter{
   position:fixed;
   top:10px;
@@ -29,17 +29,17 @@ button{padding:10px 20px;cursor:pointer;}
 </head>
 <body>
 
-<div class="header">試験中は他のアプリを開かないでください</div>
+<div class="header">試験中は他の操作をしないでください</div>
 
 <div id="counter">
-離脱回数: <span id="leaveCount">0</span><br>
-離脱時間: <span id="leaveTime">0</span><br>
+離脱: <span id="leaveCount">0</span><br>
+時間: <span id="leaveTime">0</span><br>
 不正: <span id="violation">0</span>
 </div>
 
 <div id="login">
 <h2>受験者情報</h2>
-<input id="name" placeholder="氏名"><br>
+<input id="name" placeholder="氏名">
 <input id="sid" placeholder="学籍番号"><br>
 <button onclick="start()">開始</button>
 </div>
@@ -49,8 +49,6 @@ button{padding:10px 20px;cursor:pointer;}
 <script>
 
 let questions=[];
-let config={};
-
 let current=0;
 let score=0;
 
@@ -61,9 +59,10 @@ let leaveTime=0;
 let leaveStart=null;
 let violation=0;
 
-let timeLeft=0;
+let timeLeft=1800;
 let timer=null;
 
+// トークン（1回制御）
 let token=localStorage.getItem("exam_token");
 if(!token){
   token=crypto.randomUUID();
@@ -129,8 +128,6 @@ function start(){
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
 
-  timeLeft=1800;
-
   timer=setInterval(()=>{
     if(!active)return;
 
@@ -148,7 +145,6 @@ function start(){
 function finish(){
 
   active=false;
-
   clearInterval(timer);
 
   let risk =
