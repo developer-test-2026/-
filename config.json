@@ -1,33 +1,32 @@
 {
-  "settings": {
-    "examName": "2026年度 定期考査（情報・プログラミング）",
-    "timeLimit": 1800,
-    "autoSubmit": true
-  },
+  "examName": "2026年度 定期考査（情報Ⅰ）",
+  "randomQuestion": true,
+  "randomChoice": true,
+  "timeLimit": 1800,
+  "autoSubmit": true,
+  "disqualifyLimit": 3,
+  "passScore": 60,
   "sections": [
     {
-      "title": "第1章：ネットワークとセキュリティに関する問題",
+      "title": "第1章：情報社会の結びつきとセキュリティ",
       "questions": [
         {
-          "id": "q1",
           "q": "インターネット上でデータを暗号化して安全に送受信するプロトコルはどれですか？",
           "choices": ["HTTP", "FTP", "HTTPS", "SMTP"],
           "ans": 3
         },
         {
-          "id": "q2",
-          "q": "不特定多数の人に偽のメールを送り、偽のWebサイトに誘導して暗証番号などを盗み出す行為を何と言いますか？",
+          "q": "不特定多数の人に偽のメールを送り、偽サイトに誘導して暗証番号などを盗み出す行為を何と言いますか？",
           "choices": ["フィッシング", "マルウェア", "不正アクセス", "DoS攻撃"],
           "ans": 1
         }
       ]
     },
     {
-      "title": "第2章：JavaScriptプログラミングの基礎",
+      "title": "第2章：プログラミングの基礎知識",
       "questions": [
         {
-          "id": "q3",
-          "q": "JavaScriptにおいて、再代入が不可能な「定数」を宣言するキーワードはどれですか？",
+          "q": "JavaScriptにおいて、再代入が不可能な定数を宣言するキーワードはどれですか？",
           "choices": ["var", "let", "const", "function"],
           "ans": 3
         }
