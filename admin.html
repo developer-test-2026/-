@@ -37,7 +37,7 @@ th { background: #f8fafc; font-weight: bold; }
     </div>
     <div class="form-group">
       <label>パスワード</label>
-      <input type="password" id="login-pass" placeholder="初期パスワード: admin123">
+      <input type="password" id="login-pass" placeholder="admin123">
     </div>
     <button class="btn btn-primary" style="width:100%; padding:10px;" onclick="handleLogin()">ログイン</button>
   </div>
@@ -125,7 +125,7 @@ th { background: #f8fafc; font-weight: bold; }
 <script>
 // デフォルトの管理者初期化
 if(!localStorage.getItem('EXAM_SYSTEM_USERS')) {
-  localStorage.setItem('EXAM_SYSTEM_USERS', JSON.stringify([{username: 'admin', password: 'admin123'}]));
+  localStorage.setItem('EXAM_SYSTEM_USERS', JSON.stringify([{username: 'admin', password: 'admin-password-ishikariminami-2026'}]));
 }
 
 function handleLogin() {
