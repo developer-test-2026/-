@@ -3,192 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>試験問題・設定レイアウトエディタ</title>
+<title>テスト作成・設定エディタ</title>
 <style>
   body { font-family: sans-serif; background: #f0f4f8; margin: 0; padding: 25px; color: #333; }
-  .wrapper { max-width: 950px; margin: 0 auto; background: white; padding: 35px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
-  .editor-section { border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; margin-bottom: 25px; background: #fcfdfe; }
-  h2 { margin-top: 0; color: #1e293b; border-left: 5px solid #2196f3; padding-left: 10px; font-size: 18px; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .form-item { margin-bottom: 15px; }
-  .form-item label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #475569; }
-  input[type="text"], input[type="datetime-local"], input[type="number"], select, textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
-  .q-card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 6px; margin-bottom: 20px; position: relative; }
-  .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-block; }
+  .wrapper { max-width: 950px; margin: 0 auto; }
+  .exam-header { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-top: 8px solid #2196f3; }
+  .section-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 5px solid #10b981; }
+  .q-card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 6px; margin-top: 15px; margin-bottom: 15px; }
+  h1, h2 { margin-top: 0; color: #1e293b; }
+  input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+  .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-block; margin-right: 5px; }
   .btn-primary { background: #2196f3; color: white; }
   .btn-success { background: #10b981; color: white; }
   .btn-danger { background: #ef4444; color: white; padding: 6px 12px; font-size: 13px; }
+  .btn-outline { background: transparent; border: 1px solid #2196f3; color: #2196f3; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
   .choice-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
 
 <div class="wrapper">
-  <h1 style="margin-top:0; color:#0f172a; font-size:24px;">試験問題・詳細レイアウト設定ビルダー</h1>
-  <p style="color:#64748b; margin-bottom:30px;">試験全体の構成条件、不正ペナルティ、および多形式なクイズ問題をGUIベースで設計します。</p>
-
-  <div class="editor-section">
-    <h2>1. 試験全体の動作・環境設定</h2>
+  <div class="exam-header">
+    <h1>試験の基本設定</h1>
+    <label>テストタイトル</label>
+    <input type="text" id="cfg-name" value="2026年度 情報・プログラミング 定期考査" style="font-size: 18px; font-weight: bold;">
+    <label>テストの説明・注意事項</label>
+    <textarea id="cfg-desc" rows="3">最後まで諦めずに解答してください。</textarea>
+    
     <div class="grid-2">
-      <div class="form-item"><label>試験名称</label><input type="text" id="cfg-name" value="新設中間考査"></div>
-      <div class="form-item"><label>ユニーク試験ID</label><input type="text" id="cfg-id" value="EXAM-2026-NEW"></div>
-    </div>
-    <div class="grid-2">
-      <div class="form-item"><label>有効開始日時</label><input type="datetime-local" id="cfg-start"></div>
-      <div class="form-item"><label>有効終了日時</label><input type="datetime-local" id="cfg-end"></div>
-    </div>
-    <div class="grid-2">
-      <div class="form-item"><label>制限時間（総秒数）</label><input type="number" id="cfg-limit" value="1800"></div>
-      <div class="form-item"><label>時間超過時の自動送信挙動</label><select id="cfg-autosubmit"><option value="true">有効 (タイムアウトで自動提出)</option><option value="false">無効</option></select></div>
+      <div><label>ユニーク試験ID</label><input type="text" id="cfg-id" value="EXAM-2026-NEW"></div>
+      <div><label>制限時間（総秒数）</label><input type="number" id="cfg-limit" value="1800"></div>
     </div>
   </div>
 
-  <div class="editor-section">
-    <h2>2. デザイン・セキュリティのトグル変更</h2>
-    <div class="grid-2">
-      <div class="form-item"><label>色テーマ（ブランドカラー）</label><input type="color" id="cfg-color" value="#1565c0" style="height:40px; padding:0; cursor:pointer;"></div>
-      <div class="form-item"><label>進捗バーの表示</label><select id="cfg-progress"><option value="true">表示する</option><option value="false">表示しない</option></select></div>
-    </div>
-    <div class="grid-2">
-      <div class="form-item"><label>右クリック・コピーの禁止</label><select id="cfg-sec-copy"><option value="true">厳格に禁止</option><option value="false">許可</option></select></div>
-      <div class="form-item"><label>開発者ツールの検知監視</label><select id="cfg-sec-dev"><option value="true">検知する</option><option value="false">検知しない</option></select></div>
-    </div>
-  </div>
+  <div id="sections-container"></div>
 
-  <div class="editor-section">
-    <h2>3. 設問アイテム定義 (複数形式・可変選択肢対応)</h2>
-    <div id="questions-builder-container"></div>
-    <button class="btn btn-primary" onclick="createNewQuestionStructure()">+ 新規問題を追加</button>
-  </div>
-
-  <div style="text-align: center; margin-top: 40px; display:flex; justify-content:center; gap:15px;">
-    <button class="btn btn-success" style="font-size:16px; padding:15px 35px;" onclick="buildAndDownloadJSON()">config.json としてダウンロード</button>
+  <div style="text-align: center; margin: 30px 0;">
+    <button class="btn btn-primary" style="padding: 15px 30px; font-size: 16px;" onclick="addSection()">+ 新しいセクションを追加</button>
+    <br><br><hr><br>
+    <button class="btn btn-success" style="font-size: 18px; padding: 15px 40px;" onclick="buildAndDownloadJSON()">💾 config.json を生成して保存</button>
   </div>
 </div>
 
 <script>
-let questionArray = [];
+let sections = [];
 
-function createNewQuestionStructure() {
-  const newQ = {
+function addSection() {
+  sections.push({
+    id: "sec_" + Date.now(),
+    title: "無題のセクション",
+    description: "",
+    questions: []
+  });
+  renderEditor();
+}
+
+function addQuestion(secIdx) {
+  sections[secIdx].questions.push({
     id: "q_" + Date.now(),
     type: "single",
-    text: "新しい問題の本文",
-    options: ["選択肢A", "選択肢B", "選択肢C", "選択肢D"],
+    text: "新しい問題",
+    options: ["選択肢1", "選択肢2", "選択肢3"],
     answer: [0],
-    score: 10,
-    difficulty: "普"
-  };
-  questionArray.push(newQ);
-  refreshBuilderUI();
+    score: 10
+  });
+  renderEditor();
 }
 
-function deleteQuestionStructure(idx) {
-  questionArray.splice(idx, 1);
-  refreshBuilderUI();
+function removeSection(secIdx) {
+  if(confirm("このセクションと中の問題をすべて削除しますか？")) {
+    sections.splice(secIdx, 1);
+    renderEditor();
+  }
 }
 
-function refreshBuilderUI() {
-  const container = document.getElementById('questions-builder-container');
+function removeQuestion(secIdx, qIdx) {
+  sections[secIdx].questions.splice(qIdx, 1);
+  renderEditor();
+}
+
+function renderEditor() {
+  const container = document.getElementById('sections-container');
   container.innerHTML = "";
 
-  questionArray.forEach((q, qIdx) => {
-    let optionBlockHTML = "";
+  sections.forEach((sec, sIdx) => {
+    let qHTML = "";
+    sec.questions.forEach((q, qIdx) => {
+      let optHTML = "";
+      if (q.type === 'single' || q.type === 'multiple') {
+        q.options.forEach((opt, oIdx) => {
+          const isChecked = q.answer.includes(oIdx) ? "checked" : "";
+          const inputType = q.type === 'single' ? 'radio' : 'checkbox';
+          optHTML += `
+            <div class="choice-row">
+              <input type="${inputType}" name="ans_${sIdx}_${qIdx}" ${isChecked} onchange="setAnswer(${sIdx}, ${qIdx}, ${oIdx}, this.checked)">
+              <input type="text" value="${opt}" onchange="sections[${sIdx}].questions[${qIdx}].options[${oIdx}]=this.value" style="flex:1; margin:0;">
+              <button class="btn btn-danger" onclick="removeOption(${sIdx}, ${qIdx}, ${oIdx})">削除</button>
+            </div>`;
+        });
+        optHTML += `<button class="btn btn-outline" style="padding:5px 10px; font-size:12px; margin-top:5px;" onclick="addOption(${sIdx}, ${qIdx})">+ 選択肢追加</button>`;
+      } else if (q.type === 'text') {
+        optHTML += `<textarea placeholder="模範解答" onchange="sections[${sIdx}].questions[${qIdx}].answer=[this.value]">${q.answer[0] || ''}</textarea>`;
+      }
 
-    if (q.type === 'single' || q.type === 'multiple') {
-      optionBlockHTML += `<label style="font-weight:bold; font-size:13px; display:block; margin-top:10px;">可変選択肢リスト (2〜20個まで自由追加・正解行をONにする)</label>`;
-      q.options.forEach((opt, oIdx) => {
-        const isChecked = q.answer.includes(oIdx) ? "checked" : "";
-        const inputType = q.type === 'single' ? 'radio' : 'checkbox';
-        optionBlockHTML += `
-          <div class="choice-row">
-            <input type="${inputType}" name="ans_bit_${q.id}" ${isChecked} onchange="assignCorrectAnswerBits(${qIdx}, ${oIdx}, this.checked)">
-            <input type="text" value="${opt}" onchange="modifyOptionText(${qIdx}, ${oIdx}, this.value)" style="flex:1;">
-            <button class="btn btn-danger" onclick="removeOptionRow(${qIdx}, ${oIdx})">削除</button>
-          </div>`;
-      });
-      optionBlockHTML += `<button class="btn" onclick="addOptionRow(${qIdx})" style="background:#e2e8f0; padding:4px 10px; font-size:12px;">+ 選択肢を追加</button>`;
-    } else if (q.type === 'tf') {
-      optionBlockHTML += `
-        <label>○×問題 正解判定</label>
-        <select onchange="questionArray[${qIdx}].answer=[parseInt(this.value)]">
-          <option value="0" ${q.answer[0]===0?'selected':''}>○ (正しい)</option>
-          <option value="1" ${q.answer[0]===1?'selected':''}>× (誤り)</option>
-        </select>`;
-    } else if (q.type === 'text') {
-      optionBlockHTML += `
-        <label>模範解答例 (自動採点対象外・管理画面で目視採点)</label>
-        <textarea onchange="questionArray[${qIdx}].answer=[this.value]">${q.answer[0] || ''}</textarea>`;
-    }
+      qHTML += `
+        <div class="q-card">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <select onchange="changeQType(${sIdx}, ${qIdx}, this.value)" style="width:auto; margin:0;">
+              <option value="single" ${q.type==='single'?'selected':''}>単一選択</option>
+              <option value="multiple" ${q.type==='multiple'?'selected':''}>複数選択</option>
+              <option value="text" ${q.type==='text'?'selected':''}>記述式</option>
+            </select>
+            <div>
+              配点: <input type="number" value="${q.score}" onchange="sections[${sIdx}].questions[${qIdx}].score=parseInt(this.value)" style="width:60px; margin:0; display:inline-block;"> 点
+              <button class="btn btn-danger" onclick="removeQuestion(${sIdx}, ${qIdx})" style="margin-left:10px;">問題を削除</button>
+            </div>
+          </div>
+          <textarea placeholder="問題文" onchange="sections[${sIdx}].questions[${qIdx}].text=this.value" rows="2">${q.text}</textarea>
+          <div style="margin-top:10px;">${optHTML}</div>
+        </div>`;
+    });
 
     container.innerHTML += `
-      <div class="q-card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-          <span style="font-weight:bold; color:#1e293b;">設問スロット #${qIdx + 1}</span>
-          <button class="btn btn-danger" onclick="deleteQuestionStructure(${qIdx})">この問題を削除</button>
+      <div class="section-card">
+        <div style="display:flex; justify-content:space-between;">
+          <h2 style="margin-bottom:0;">セクション ${sIdx + 1}</h2>
+          <button class="btn btn-danger" onclick="removeSection(${sIdx})">セクション削除</button>
         </div>
-        <div class="grid-2">
-          <div class="form-item">
-            <label>問題形式</label>
-            <select onchange="switchQuestionType(${qIdx}, this.value)">
-              <option value="single" ${q.type==='single'?'selected':''}>単一選択 (4択・5択など)</option>
-              <option value="multiple" ${q.type==='multiple'?'selected':''}>複数選択回答 (完答)</option>
-              <option value="tf" ${q.type==='tf'?'selected':''}>○×クイズ</option>
-              <option value="text" ${q.type==='text'?'selected':''}>記述式問題 (テキスト入力)</option>
-            </select>
-          </div>
-          <div class="form-item">
-            <label>配点スコア</label>
-            <input type="number" value="${q.score}" onchange="questionArray[${qIdx}].score=parseInt(this.value)">
-          </div>
-        </div>
-        <div class="form-item">
-          <label>問題文テキスト</label>
-          <textarea onchange="questionArray[${qIdx}].text=this.value">${q.text}</textarea>
-        </div>
-        <div style="margin-top:10px; background:white; padding:15px; border-radius:4px; border:1px solid #e2e8f0;">
-          ${optionBlockHTML}
-        </div>
+        <input type="text" value="${sec.title}" onchange="sections[${sIdx}].title=this.value" placeholder="セクションタイトル" style="font-size:16px; font-weight:bold;">
+        <textarea placeholder="セクションの説明（任意）" onchange="sections[${sIdx}].description=this.value" rows="2">${sec.description}</textarea>
+        ${qHTML}
+        <button class="btn btn-outline" style="margin-top:15px;" onclick="addQuestion(${sIdx})">+ このセクションに問題を追加</button>
       </div>`;
   });
 }
 
-function switchQuestionType(qIdx, type) {
-  const q = questionArray[qIdx];
+function changeQType(sIdx, qIdx, type) {
+  const q = sections[sIdx].questions[qIdx];
   q.type = type;
-  if(type === 'tf') { q.options = ["○", "×"]; q.answer = [0]; }
-  else if(type === 'text') { q.options = []; q.answer = [""]; }
-  else { q.options = ["選択肢1", "選択肢2", "選択肢3"]; q.answer = [0]; }
-  refreshBuilderUI();
+  if(type === 'text') { q.options = []; q.answer = [""]; }
+  else { q.options = ["選択肢1", "選択肢2"]; q.answer = [0]; }
+  renderEditor();
 }
 
-function addOptionRow(qIdx) {
-  if(questionArray[qIdx].options.length >= 20) return alert("選択肢は最大20個までです。");
-  questionArray[qIdx].options.push("新しい選択肢");
-  refreshBuilderUI();
+function addOption(sIdx, qIdx) {
+  sections[sIdx].questions[qIdx].options.push("新規選択肢");
+  renderEditor();
 }
 
-function removeOptionRow(qIdx, oIdx) {
-  if(questionArray[qIdx].options.length <= 2) return alert("選択肢は最低2個必要です。");
-  questionArray[qIdx].options.splice(oIdx, 1);
-  questionArray[qIdx].answer = [0];
-  refreshBuilderUI();
+function removeOption(sIdx, qIdx, oIdx) {
+  sections[sIdx].questions[qIdx].options.splice(oIdx, 1);
+  sections[sIdx].questions[qIdx].answer = [0];
+  renderEditor();
 }
 
-function modifyOptionText(qIdx, oIdx, text) {
-  questionArray[qIdx].options[oIdx] = text;
-}
-
-function assignCorrectAnswerBits(qIdx, oIdx, isChecked) {
-  const q = questionArray[qIdx];
-  if(q.type === 'single') {
-    q.answer = [oIdx];
-  } else {
-    if(isChecked) {
-      if(!q.answer.includes(oIdx)) q.answer.push(oIdx);
-    } else {
-      q.answer = q.answer.filter(v => v !== oIdx);
-    }
+function setAnswer(sIdx, qIdx, oIdx, isChecked) {
+  const q = sections[sIdx].questions[qIdx];
+  if(q.type === 'single') { q.answer = [oIdx]; } 
+  else {
+    if(isChecked && !q.answer.includes(oIdx)) q.answer.push(oIdx);
+    else if(!isChecked) q.answer = q.answer.filter(v => v !== oIdx);
   }
 }
 
@@ -197,27 +172,11 @@ function buildAndDownloadJSON() {
     settings: {
       examId: document.getElementById('cfg-id').value,
       examName: document.getElementById('cfg-name').value,
-      startTime: document.getElementById('cfg-start').value,
-      endTime: document.getElementById('cfg-end').value,
-      timeLimit: parseInt(document.getElementById('cfg-limit').value),
-      autoSubmit: document.getElementById('cfg-autosubmit').value === "true",
-      randomQuestion: false,
-      randomChoice: false,
-      themeColor: document.getElementById('cfg-color').value,
-      showProgress: document.getElementById('cfg-progress').value === "true",
-      showScore: true,
-      showQNumber: true,
-      security: {
-        tabChange: true,
-        fullscreen: true,
-        preventCopy: document.getElementById('cfg-sec-copy').value === "true",
-        preventRightClick: document.getElementById('cfg-sec-copy').value === "true",
-        devTools: document.getElementById('cfg-sec-dev').value === "true"
-      }
+      description: document.getElementById('cfg-desc').value,
+      timeLimit: parseInt(document.getElementById('cfg-limit').value)
     },
-    questions: questionArray
+    sections: sections
   };
-
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(output, null, 2));
   const dlAnchor = document.createElement('a');
   dlAnchor.setAttribute("href", dataStr);
@@ -225,7 +184,7 @@ function buildAndDownloadJSON() {
   dlAnchor.click();
 }
 
-window.onload = () => { createNewQuestionStructure(); };
+window.onload = () => { if(sections.length === 0) addSection(); };
 </script>
 </body>
 </html>
