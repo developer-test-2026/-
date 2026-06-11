@@ -1,105 +1,53 @@
 {
-"system": {
-"name": "School Exam System",
-"version": "2.0.0",
-"maintenanceMode": false,
-"debugMode": false
-},
-
-"security": {
-"adminPassword": "CHANGE_ME",
-"enableAdminLogin": true,
-"sessionTimeoutMinutes": 120,
-"allowGuestAccess": false
-},
-
-"exam": {
-"defaultTimeLimit": 3600,
-"autoSubmit": true,
-"allowResume": true,
-"saveIntervalSeconds": 30,
-"allowReview": true,
-"showCorrectAnswersAfterSubmit": false,
-"randomQuestionOrder": false,
-"randomChoiceOrder": false,
-"passScore": 60,
-"maxChoiceCount": 20
-},
-
-"questionTypes": {
-"single": true,
-"multiple": true,
-"boolean": true,
-"text": true
-},
-
-"scoring": {
-"allowPartialScore": true,
-"manualGradingEnabled": true,
-"recalculateTotalAfterManualGrading": true,
-"defaultTextQuestionScore": 10
-},
-
-"review": {
-"enableResultHistory": true,
-"enableQuestionReview": true,
-"saveReviewDataLocally": true,
-"maxReviewHistory": 20
-},
-
-"storage": {
-"useLocalBackup": true,
-"localStoragePrefix": "exam_system",
-"autoBackupAnswers": true
-},
-
-"googleAppsScript": {
-"apiUrl": "PASTE_YOUR_WEBAPP_URL_HERE",
-"timeoutSeconds": 30,
-"retryCount": 3
-},
-
-"dashboard": {
-"autoRefresh": true,
-"refreshIntervalSeconds": 15,
-"showAverageScore": true,
-"showHighestScore": true,
-"showLowestScore": true,
-"showPassRate": true,
-"showQuestionStatistics": true
-},
-
-"csv": {
-"enableExport": true,
-"encoding": "UTF-8",
-"includeAnswerData": true,
-"includeManualScore": true,
-"includeReviewData": true
-},
-
-"editor": {
-"enableJsonImport": true,
-"enableJsonExport": true,
-"enableCsvImport": true,
-"enableCsvExport": true,
-"enablePreview": true,
-"enableDragAndDropSort": true,
-"defaultQuestionType": "single"
-},
-
-"ui": {
-"theme": "light",
-"primaryColor": "#1976d2",
-"showProgressBar": true,
-"showQuestionNumber": true,
-"showPointValue": true,
-"showTimer": true
-},
-
-"limits": {
-"maxTests": 1000,
-"maxQuestionsPerTest": 500,
-"maxTextAnswerLength": 10000,
-"maxChoicesPerQuestion": 20
-}
+  "settings": {
+    "examId": "EXAM_2026_01",
+    "examName": "1学期中間テスト",
+    "startTime": "2026-05-15T09:00",
+    "endTime": "2026-05-15T12:00",
+    "timeLimit": 3000,
+    "autoSubmit": true,
+    "randomQuestion": true,
+    "randomChoice": true,
+    "themeColor": "#1565c0",
+    "showProgress": true,
+    "showScore": true
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single",
+      "text": "日本の首都はどこですか？",
+      "options": ["大阪", "東京", "京都", "札幌"],
+      "answer": [1],
+      "score": 10,
+      "difficulty": "易"
+    },
+    {
+      "id": "q2",
+      "type": "multiple",
+      "text": "プログラミング言語を全て選びなさい。",
+      "options": ["JavaScript", "HTML", "Python", "VBA"],
+      "answer": [0, 2, 3],
+      "score": 20,
+      "difficulty": "普"
+    },
+    {
+      "id": "q3",
+      "type": "tf",
+      "text": "月は地球の衛星である。",
+      "options": ["○", "×"],
+      "answer": [0],
+      "score": 10,
+      "difficulty": "易"
+    },
+    {
+      "id": "q4",
+      "type": "text",
+      "text": "人工知能について簡潔に説明しなさい。",
+      "options": [],
+      "answer": ["コンピュータによる知的な情報処理システムの総称"],
+      "score": 30,
+      "difficulty": "難"
+    }
+  ]
 }
