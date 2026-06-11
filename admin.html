@@ -2,250 +2,210 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>教員用リアルタイム管理ダッシュボード</title>
+<title>教員管理・テスト作成ダッシュボード</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #f8f9fa; color: #333; }
-  header { background: #2c3e50; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
-  .main-container { padding: 25px; max-width: 1300px; margin: 0 auto; }
-  .tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-  .tab-btn { padding: 12px 24px; background: #e0e0e0; border: none; cursor: pointer; font-size: 15px; border-radius: 4px 4px 0 0; font-weight: bold; }
-  .tab-btn.active { background: #2196f3; color: white; }
-  .view-panel { background: white; padding: 25px; border-radius: 0 0 6px 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none; }
-  .view-panel.active { display: block; }
-  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-  .metric-card { background: white; border-radius: 6px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; text-align: center; }
-  .metric-card h3 { margin: 0; font-size: 14px; color: #64748b; text-transform: uppercase; }
-  .metric-card .num { font-size: 36px; font-weight: bold; margin-top: 10px; color: #1e293b; }
-  .text-danger { color: #ef4444 !important; }
-  table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-  th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
-  th { background: #f1f5f9; font-weight: bold; color: #475569; }
-  tr:nth-child(even) { background: #f8fafc; }
-  .action-btn { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-  .filter-bar { background: #f1f5f9; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-  .filter-bar select, .filter-bar input { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; }
+body{font-family:sans-serif;padding:20px;background:#f8f9fa;color:#333;}
+.tab-container{display:flex;margin-bottom:20px;border-bottom:2px solid #ccc;}
+.tab{padding:10px 20px;cursor:pointer;background:#e0e0e0;border-radius:5px 5px 0 0;margin-right:5px;font-weight:bold;}
+.tab.active{background:#1a73e8;color:white;}
+.panel{background:white;padding:25px;border-radius:5px;box-shadow:0 2px 5px rgba(0,0,0,0.1);display:none;}
+.panel.active{display:block;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{border:1px solid #ccc;padding:10px;text-align:center;}
+th{background:#f1f3f4;}
+.editor-sec{border:1px solid #dadce0;padding:20px;margin-bottom:20px;border-radius:8px;background:#fdfdfd;}
+.editor-q{background:#f1f3f4;padding:15px;margin:15px 0;border-radius:6px;position:relative;}
+input[type="text"], select{width:100%;padding:8px;margin:5px 0;box-sizing:border-box;}
+.btn{padding:8px 16px;font-size:14px;cursor:pointer;font-weight:bold;border:none;border-radius:4px;margin:5px;}
+.btn-blue{background:#1a73e8;color:white;}
+.btn-green{background:#137333;color:white;}
+.btn-red{background:#d93025;color:white;}
 </style>
 </head>
 <body>
 
-<header>
-  <div style="font-size: 20px; font-weight: bold;">試験リアルタイム統括ダッシュボード</div>
-  <div style="display: flex; align-items: center; gap: 15px;">
-    <label style="font-size:14px;"><input type="checkbox" id="auto-refresh-toggle" checked onchange="toggleAutoRefresh()"> リアルタイム自動更新(10秒周期)</label>
-    <button class="action-btn" onclick="fetchLatestData()" style="background:#3b82f6;">データ強制同期</button>
-  </div>
-</header>
+<h2>教員用総合統括ダッシュボード</h2>
 
-<div class="main-container">
+<div id="login-zone" style="text-align:center; padding:5px;">
+  <input id="pass" type="password" placeholder="管理者パスワード" style="width:250px; padding:10px;">
+  <button class="btn btn-blue" onclick="checkLogin()" style="padding:10px 20px;">ログイン</button>
+</div>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('pane-dashboard')">リアルタイム監視</button>
-    <button class="tab-btn" onclick="switchTab('pane-csv')">CSV出力・成績台帳</button>
-    <button class="tab-btn" onclick="switchTab('pane-grading')">記述式の手動採点</button>
-    <button class="tab-btn" onclick="switchTab('pane-analysis')">試験結果分析</button>
+<div id="main-zone" style="display:none;">
+  <div class="tab-container">
+    <div id="tab1" class="tab active" onclick="switchTab(1)">① 受験者成績・ステータス確認</div>
+    <div id="tab2" class="tab" onclick="switchTab(2)">② テスト構成・作成（Googleフォーム風）</div>
   </div>
 
-  <div id="pane-dashboard" class="view-panel active">
-    <div class="summary-grid">
-      <div class="metric-card"><h3>受験中人数</h3><div class="num" id="stat-active">0</div></div>
-      <div class="metric-card"><h3>終了人数</h3><div class="num" id="stat-done">0</div></div>
-      <div class="metric-card"><h3>現在の平均進捗問題</h3><div class="num" id="stat-avg-q">Q3</div></div>
-      <div class="metric-card"><h3>離脱警告・不正検知総数</h3><div class="num text-danger" id="stat-violation">0</div></div>
-    </div>
-    
-    <h3>リアルタイム受験生ステータス</h3>
-    <table>
-      <thead>
-        <tr><th>学籍番号</th><th>氏名</th><th>クラス</th><th>進行状況</th><th>現在位置</th><th>離脱回数</th><th>不正フラグ</th></tr>
-      </thead>
-      <tbody id="table-live-monitoring"></tbody>
-    </table>
+  <div id="panel1" class="panel active">
+    <button class="btn btn-blue" onclick="loadScores()">最新データに更新</button>
+    <button class="btn btn-green" onclick="downloadCSV()">CSVダウンロード</button>
+    <div id="table-area" style="margin-top:15px;">※データを読み込んでいます...</div>
   </div>
 
-  <div id="pane-csv" class="view-panel">
-    <h3>高度なデータフィルタリング・CSVダウンロード</h3>
-    <div class="filter-bar">
-      <div>
-        <label>クラス別: </label>
-        <select id="filter-class"><option value="ALL">全クラス</option><option value="1年1組">1年1組</option><option value="1年5組">1年5組</option><option value="2年1組">2年1組</option></select>
-      </div>
-      <div>
-        <label>試験ID別: </label>
-        <select id="filter-exam"><option value="ALL">全試験</option><option value="EXAM-2026-A">EXAM-2026-A</option></select>
-      </div>
-      <div>
-        <label>日付別: </label>
-        <input type="date" id="filter-date">
-      </div>
-      <button class="action-btn" onclick="downloadCustomCSV()" style="background:#059669;">条件に適合するCSVをダウンロード</button>
-    </div>
+  <div id="panel2" class="panel">
+    <h3>試験プロパティ設定</h3>
+    <label><b>試験名（タイトル）:</b></label>
+    <input type="text" id="edit-exam-name" value="">
+    <label><b>制限時間（秒）:</b></label>
+    <input type="number" id="edit-time-limit" value="1800" style="padding:8px; width:100px; margin:5px 0;"><br><br>
 
-    <table>
-      <thead>
-        <tr><th>管理番号</th><th>クラス</th><th>学籍番号</th><th>氏名</th><th>自動スコア</th><th>最終確定スコア</th><th>提出時間</th></tr>
-      </thead>
-      <tbody id="table-ledger-body"></tbody>
-    </table>
-  </div>
+    <div id="sections-builder"></div>
 
-  <div id="pane-grading" class="view-panel">
-    <h3>記述問題の記述判定・採点管理（教員用審査）</h3>
-    <p style="color:#555;">生徒が記述した回答を模範解答と比較し、○×ボタンまたは直接加点入力で採点を行えます。</p>
-    <table>
-      <thead>
-        <tr><th>受験者名</th><th>問題内容</th><th>生徒の回答記述</th><th>模範解答</th><th>採点アクション / 判定</th></tr>
-      </thead>
-      <tbody id="table-grading-body"></tbody>
-    </table>
-  </div>
-
-  <div id="pane-analysis" class="view-panel">
-    <h3>全体成績統計分析</h3>
-    <div class="summary-grid">
-      <div class="metric-card"><h3>受験者総数</h3><div class="num" id="anal-total">0 名</div></div>
-      <div class="metric-card"><h3>最高得点</h3><div class="num" style="color:#10b981;" id="anal-max">0</div></div>
-      <div class="metric-card"><h3>平均得点</h3><div class="num" style="color:#3b82f6;" id="anal-avg">0</div></div>
-      <div class="metric-card"><h3>最低得点</h3><div class="num" style="color:#ef4444;" id="anal-min">0</div></div>
+    <button class="btn btn-blue" onclick="addSectionStructure()">＋ 新しいセクションを追加</button>
+    <hr style="margin:30px 0;">
+    <div style="text-align:center;">
+      <button class="btn btn-green" onclick="generateConfigJSON()" style="font-size:18px; padding:12px 35px;">config.json として設定を出力・保存</button>
     </div>
   </div>
-
 </div>
 
 <script>
-// シミュレーション＆蓄積用モックデータベース
-let dbRecords = [
-  { receiptId:"REC-H8Y9A", examId:"EXAM-2026-A", date:"2026-06-11", class:"1年5組", id:"20260501", name:"阿部 健太", status:"提出済", currentQ:4, autoScore:30, finalScore:50, violation:0, leaveCount:0, time:"2026/06/11 10:15:30", textAns:"データと手続きを一つにまとめて保護すること。" },
-  { receiptId:"REC-K3M1Z", examId:"EXAM-2026-A", date:"2026-06-11", class:"1年1組", id:"20260105", name:"佐藤 美咲", status:"提出済", currentQ:4, autoScore:40, finalScore:40, violation:3, leaveCount:2, time:"2026/06/11 10:20:12", textAns:"プログラムを箱に閉じ込める手法。" },
-  { receiptId:"REC-W4P7X", examId:"EXAM-2026-A", date:"2026-06-11", class:"1年5組", id:"20260512", name:"鈴木 翔太", status:"受験中", currentQ:2, autoScore:0, finalScore:0, violation:0, leaveCount:0, time:"-", textAns:"" }
-];
+const PASSWORD = "admin ishikariminami 2026";
+let csvData = "";
+let currentEditorData = { settings: { examName: "", timeLimit: 1800, autoSubmit: true }, sections: [] };
 
-let refreshInterval = null;
-
-function switchTab(paneId) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById(paneId).classList.add('active');
-  renderAllPanels();
-}
-
-function fetchLatestData() {
-  console.log("GAS / スプレッドシートから最新データをフェッチしました。");
-  renderAllPanels();
-}
-
-function toggleAutoRefresh() {
-  const isChecked = document.getElementById('auto-refresh-toggle').checked;
-  if(isChecked) {
-    refreshInterval = setInterval(fetchLatestData, 10000);
+function checkLogin(){
+  if(document.getElementById("pass").value === PASSWORD){
+    document.getElementById("login-zone").style.display = "none";
+    document.getElementById("main-zone").style.display = "block";
+    loadScores();
+    loadCurrentConfig();
   } else {
-    clearInterval(refreshInterval);
+    alert("パスワードが違います。");
   }
 }
 
-function renderAllPanels() {
-  // 1. リアルタイム監視レンダリング
-  const liveTbody = document.getElementById('table-live-monitoring');
-  liveTbody.innerHTML = "";
-  let activeCount = 0, doneCount = 0, totalViolation = 0;
-  
-  dbRecords.forEach(r => {
-    if(r.status === "受験中") activeCount++;
-    if(r.status === "提出済") doneCount++;
-    totalViolation += r.violation;
+function switchTab(num) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab' + num).classList.add('active');
+  document.getElementById('panel' + num).classList.add('active');
+}
 
-    liveTbody.innerHTML += `
-      <tr>
-        <td>${r.id}</td>
-        <td><b>${r.name}</b></td>
-        <td>${r.class}</td>
-        <td><span style="color:${r.status==='提出済'?'green':'#ff9800'}; font-weight:bold;">${r.status}</span></td>
-        <td>Q ${r.currentQ}</td>
-        <td>${r.leaveCount} 回</td>
-        <td class="${r.violation > 0 ? 'text-danger':''}" style="font-weight:bold;">${r.violation > 0 ? r.violation + ' 個の警告' : '健全'}</td>
-      </tr>`;
-  });
-  
-  document.getElementById('stat-active').innerText = activeCount;
-  document.getElementById('stat-done').innerText = doneCount;
-  document.getElementById('stat-violation').innerText = totalViolation;
-
-  // 2. 成績台帳テーブル
-  const ledgerTbody = document.getElementById('table-ledger-body');
-  ledgerTbody.innerHTML = "";
-  dbRecords.forEach(r => {
-    ledgerTbody.innerHTML += `<tr><td>${r.receiptId}</td><td>${r.class}</td><td>${r.id}</td><td>${r.name}</td><td>${r.autoScore}点</td><td><b>${r.finalScore}点</b></td><td>${r.time}</td></tr>`;
-  });
-
-  // 3. 記述式の手動採点
-  const gradingTbody = document.getElementById('table-grading-body');
-  gradingTbody.innerHTML = "";
-  dbRecords.filter(r => r.status === "提出済").forEach((r, index) => {
-    gradingTbody.innerHTML += `
-      <tr>
-        <td><b>${r.name}</b><br><small>${r.class}</small></td>
-        <td>Q4. オブジェクト指向のカプセル化について説明せよ。</td>
-        <td style="background:#fffde7; font-weight:bold;">${r.textAns}</td>
-        <td>データと手続きを一体化し、外部から隠蔽すること。</td>
-        <td>
-          <button onclick="applyGrading('${r.receiptId}', true)" style="background:#10b981; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px;">◯ 正解にする(+20点)</button>
-          <button onclick="applyGrading('${r.receiptId}', false)" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:3px; margin-left:5px;">× 不正解(0点)</button>
-        </td>
-      </tr>`;
-  });
-
-  // 4. 分析
-  const doneStudents = dbRecords.filter(r => r.status === "提出済");
-  if(doneStudents.length > 0) {
-    const scores = doneStudents.map(r => r.finalScore);
-    document.getElementById('anal-total').innerText = doneStudents.length + " 名";
-    document.getElementById('anal-max').innerText = Math.max(...scores) + " 点";
-    document.getElementById('anal-min').innerText = Math.min(...scores) + " 点";
-    document.getElementById('anal-avg').innerText = (scores.reduce((a,b)=>a+b, 0) / scores.length).toFixed(1) + " 点";
+// GASから受験ログを取得
+async function loadScores(){
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbx_7hO1brtwsA7MZIxq7pj3YeDWrTySisWcWyeV-my0SDwFaxvi-Cd2uS_RpUm4UdQ_/exec");
+    csvData = await res.text();
+    const rows = csvData.trim().split("\n");
+    let html = `<table><tr><th>氏名</th><th>学籍番号</th><th>獲得点数</th><th>離脱回数</th><th>離脱時間(秒)</th><th>不正警告</th><th>管理番号</th></tr>`;
+    for(let i=1; i<rows.length; i++){
+      let r = rows[i].split(",");
+      if(r.length < 4) continue;
+      html += `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]} 点</td><td>${r[3]} 回</td><td>${r[4]} 秒</td><td>${r[5]}</td><td><code>${r[6]||'-'}</code></td></tr>`;
+    }
+    document.getElementById("table-area").innerHTML = html + `</table>`;
+  } catch(e) {
+    document.getElementById("table-area").innerHTML = "データの取得に失敗しました。GASのWebアプリURLを確認してください。";
   }
 }
 
-function applyGrading(receiptId, isCorrect) {
-  const target = dbRecords.find(r => r.receiptId === receiptId);
-  if(target) {
-    target.finalScore = target.autoScore + (isCorrect ? 20 : 0);
-    alert(`${target.name} さんの記述採点を確定しました。最終得点: ${target.finalScore}点`);
-    renderAllPanels();
+function downloadCSV(){
+  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvData], {type: "text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "exam_results.csv";
+  a.click();
+}
+
+// 既存のconfig.jsonをエディタに読み込む
+async function loadCurrentConfig() {
+  try {
+    const res = await fetch("config.json");
+    currentEditorData = await res.json();
+  } catch(e) {
+    // 存在しない場合は空のデフォルト
+    currentEditorData = { settings: { examName: "新規定期試験", timeLimit: 1800, autoSubmit: true }, sections: [] };
+  }
+  document.getElementById("edit-exam-name").value = currentEditorData.settings.examName;
+  document.getElementById("edit-time-limit").value = currentEditorData.settings.timeLimit;
+  renderBuilder();
+}
+
+function renderBuilder() {
+  let html = "";
+  currentEditorData.sections.forEach((sec, sIdx) => {
+    html += `
+      <div class="editor-sec">
+        <div style="display:flex; justify-content:between; align-items:center;">
+          <h4 style="margin:0; color:#1a73e8; flex:1;">■ セクション ${sIdx + 1}</h4>
+          <button class="btn btn-red" onclick="removeSection(${sIdx})">このセクションを削除</button>
+        </div>
+        <input type="text" placeholder="セクションのタイトル (例: 第1章 基礎知識)" value="${sec.title}" onchange="currentEditorData.sections[${sIdx}].title=this.value">
+        
+        <div id="questions-zone-${sIdx}">`;
+        
+    sec.questions.forEach((q, qIdx) => {
+      html += `
+        <div class="editor-q">
+          <div style="text-align:right;"><button class="btn btn-red" style="padding:2px 8px; font-size:11px;" onclick="removeQuestion(${sIdx}, ${qIdx})">問題を削除</button></div>
+          <label>問題文:</label>
+          <input type="text" value="${q.q}" onchange="currentEditorData.sections[${sIdx}].questions[${qIdx}].q=this.value">
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:5px;">
+            <div><label>選択肢1:</label><input type="text" value="${q.choices[0]||''}" onchange="currentEditorData.sections[${sIdx}].questions[${qIdx}].choices[0]=this.value"></div>
+            <div><label>選択肢2:</label><input type="text" value="${q.choices[1]||''}" onchange="currentEditorData.sections[${sIdx}].questions[${qIdx}].choices[1]=this.value"></div>
+            <div><label>選択肢3:</label><input type="text" value="${q.choices[2]||''}" onchange="currentEditorData.sections[${sIdx}].questions[${qIdx}].choices[2]=this.value"></div>
+            <div><label>選択肢4:</label><input type="text" value="${q.choices[3]||''}" onchange="currentEditorData.sections[${sIdx}].questions[${qIdx}].choices[3]=this.value"></div>
+          </div>
+          
+          <label style="margin-top:10px; display:block;"><b>正解となる番号:</b></label>
+          <select onchange="currentEditorData.sections[${sIdx}].questions[${qIdx}].ans=Number(this.value)">
+            <option value="1" ${q.ans===1?'selected':''}>選択肢1が正解</option>
+            <option value="2" ${q.ans===2?'selected':''}>選択肢2が正解</option>
+            <option value="3" ${q.ans===3?'selected':''}>選択肢3が正解</option>
+            <option value="4" ${q.ans===4?'selected':''}>選択肢4が正解</option>
+          </select>
+        </div>`;
+    });
+    
+    html += `
+        </div>
+        <button class="btn btn-blue" style="background:#5f6368;" onclick="addQuestionToSection(${sIdx})">＋ このセクションに問題を追加</button>
+      </div>`;
+  });
+  document.getElementById("sections-builder").innerHTML = html;
+}
+
+function addSectionStructure() {
+  currentEditorData.sections.push({ title: "新しいセクション", questions: [] });
+  renderBuilder();
+}
+
+function removeSection(sIdx) {
+  if(confirm("このセクション内の問題もすべて削除されます。よしいですか？")) {
+    currentEditorData.sections.splice(sIdx, 1);
+    renderBuilder();
   }
 }
 
-function downloadCustomCSV() {
-  const fClass = document.getElementById('filter-class').value;
-  const fExam = document.getElementById('filter-exam').value;
-  const fDate = document.getElementById('filter-date').value;
-
-  let csvContent = "受験管理番号,試験ID,クラス,学籍番号,氏名,自動採点スコア,最終確定スコア,離脱回数,提出時間\n";
-  
-  let filtered = dbRecords.filter(r => {
-    if(fClass !== "ALL" && r.class !== fClass) return false;
-    if(fExam !== "ALL" && r.examId !== fExam) return false;
-    if(fDate && r.date !== fDate) return false;
-    return true;
+function addQuestionToSection(sIdx) {
+  const qId = "q_" + Date.now() + "_" + Math.floor(Math.random()*1000);
+  currentEditorData.sections[sIdx].questions.push({
+    id: qId,
+    q: "新しい問題文",
+    choices: ["選択肢A", "選択肢B", "選択肢C", "選択肢D"],
+    ans: 1
   });
-
-  if(filtered.length === 0) return alert("該当するデータが存在しません。");
-
-  filtered.forEach(r => {
-    csvContent += `${r.receiptId},${r.examId},${r.class},${r.id},${r.name},${r.autoScore},${r.finalScore},${r.leaveCount},${r.time}\n`;
-  });
-
-  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `ExamResult_${fClass}_${fDate || 'AllDays'}.csv`;
-  link.click();
+  renderBuilder();
 }
 
-window.onload = () => {
-  renderAllPanels();
-  toggleAutoRefresh();
-};
+function removeQuestion(sIdx, qIdx) {
+  currentEditorData.sections[sIdx].questions.splice(qIdx, 1);
+  renderBuilder();
+}
+
+function generateConfigJSON() {
+  currentEditorData.settings.examName = document.getElementById("edit-exam-name").value;
+  currentEditorData.settings.timeLimit = Number(document.getElementById("edit-time-limit").value);
+
+  const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentEditorData, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", jsonString);
+  dlAnchor.setAttribute("download", "config.json");
+  dlAnchor.click();
+}
 </script>
 </body>
 </html>
