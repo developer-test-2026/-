@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者ユーザーアカウント作成管理</title>
+<style>
+:root { --accent: #4f46e5; --border: #e2e8f0; --text: #1e293b; --bg: #f1f5f9; }
+body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 4px; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0;}
+.box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+h2 { margin-top: 0; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+.form-group { margin-bottom: 14px; display: flex; flex-direction: column; }
+.form-group label { margin-bottom: 4px; font-weight: bold; font-size:14px; }
+.form-group input { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; }
+.btn { background: var(--accent); color: white; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size:15px; }
+.btn:hover { background: #3730a3; }
+.list-section { margin-top: 24px; border-top: 2px solid var(--border); padding-top: 15px; }
+ul { list-style: none; padding: 0; margin: 0; }
+li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border); font-size: 15px; }
+.del-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h2>👤 管理者アカウント新規作成</h2>
+  <div class="form-group">
+    <label>新しいユーザー名</label>
+    <input type="text" id="new-user" placeholder="例: kyo_tanaka">
+  </div>
+  <div class="form-group">
+    <label>ログインパスワード</label>
+    <input type="password" id="new-pass" placeholder="••••••••">
+  </div>
+  <button class="btn" onclick="registerUser()">管理者として新規登録する</button>
+
+  <div class="list-section">
+    <h3 style="margin-top:0; font-size:16px;">👥 現在の登録者一覧確認</h3>
+    <ul id="users-list"></ul>
+  </div>
+</div>
+
+<script>
+window.onload = () => { loadUsers(); };
+
+function registerUser() {
+  const user = document.getElementById('new-user').value.trim();
+  const pass = document.getElementById('new-pass').value.trim();
+
+  if(!user || !pass) { alert('ユーザー名とパスワードを両方入力してください。'); return; }
+
+  let users = JSON.parse(localStorage.getItem('EXAM_SYSTEM_USERS') || '[{"username":"admin","password":"admin123"}]');
+  
+  if(users.some(u => u.username === user)) {
+    alert('指定されたユーザー名は既に登録されています。');
+    return;
+  }
+
+  users.push({ username: user, password: pass });
+  localStorage.setItem('EXAM_SYSTEM_USERS', JSON.stringify(users));
+  
+  document.getElementById('new-user').value = '';
+  document.getElementById('new-pass').value = '';
+  
+  alert('新しい管理者を正常に登録しました。');
+  loadUsers();
+}
+
+function loadUsers() {
+  const users = JSON.parse(localStorage.getItem('EXAM_SYSTEM_USERS') || '[{"username":"admin","password":"admin123"}]');
+  const ul = document.getElementById('users-list');
+  ul.innerHTML = '';
+
+  users.forEach(u => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span><b>${u.username}</b></span> 
+      ${u.username === 'admin' ? '<span style="color:gray; font-size:12px;">初期管理者</span>' : `<button class="del-btn" onclick="removeUser('${u.username}')">削除</button>`}`;
+    ul.appendChild(li);
+  });
+}
+
+function removeUser(username) {
+  if(!confirm(`ユーザー「${username}」の管理権限を削除しますか？`)) return;
+  let users = JSON.parse(localStorage.getItem('EXAM_SYSTEM_USERS') || '[]');
+  users = users.filter(u => u.username !== username);
+  localStorage.setItem('EXAM_SYSTEM_USERS', JSON.stringify(users));
+  loadUsers();
+}
+</script>
+</body>
+</html>
