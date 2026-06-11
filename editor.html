@@ -5,157 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>試験作成エディタ</title>
 <style>
-:root {
-  --accent: #4f46e5;
-  --accent-light: #eef2ff;
-  --accent-dark: #3730a3;
-  --danger: #ef4444;
-  --success: #10b981;
-  --border: #e2e8f0;
-  --text: #1e293b;
-  --sub: #64748b;
-  --bg: #f1f5f9;
-  --card-bg: #ffffff;
-  --blue-btn: #1565c0;
-}
+:root { --accent: #4f46e5; --accent-light: #eef2ff; --accent-dark: #3730a3; --danger: #ef4444; --success: #10b981; --border: #e2e8f0; --text: #1e293b; --sub: #64748b; --bg: #f1f5f9; --card-bg: #ffffff; --blue-btn: #1565c0; }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); }
-
-/* ===== ヘッダー ===== */
-.app-header {
-  background: var(--accent); color: white;
-  padding: 14px 28px;
-  display: flex; justify-content: space-between; align-items: center;
-  position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 3px 10px rgba(79,70,229,0.3);
-}
-.app-header .logo { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+.app-header { background: var(--accent); color: white; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 3px 10px rgba(79,70,229,0.3); }
+.app-header .logo { font-size: 18px; font-weight: 800; }
 .app-header .actions { display: flex; gap: 10px; }
-
-/* ===== レイアウト ===== */
 .editor-layout { display: flex; gap: 0; max-width: 1200px; margin: 0 auto; padding: 30px 20px; gap: 24px; }
 .editor-main { flex: 1; min-width: 0; }
 .editor-sidebar { width: 280px; flex-shrink: 0; }
-
-/* ===== カード共通 ===== */
-.card {
-  background: var(--card-bg); border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  margin-bottom: 16px;
-  border: 2px solid transparent;
-  transition: border 0.15s, box-shadow 0.15s;
-}
+.card { background: var(--card-bg); border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; border: 2px solid transparent; transition: border 0.15s, box-shadow 0.15s; }
 .card:hover { border-color: var(--border); }
 .card.focused { border-color: var(--accent); box-shadow: 0 4px 14px rgba(79,70,229,0.15); }
-
-/* ===== 試験ヘッダーカード ===== */
-.exam-title-card {
-  background: white; border-radius: 10px;
-  padding: 28px 32px; margin-bottom: 16px;
-  border-top: 8px solid var(--accent);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
+.exam-title-card { background: white; border-radius: 10px; padding: 28px 32px; margin-bottom: 16px; border-top: 8px solid var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .exam-title-card input[type="text"] { font-size: 26px; font-weight: bold; border: none; border-bottom: 2px solid var(--border); width: 100%; padding: 8px 4px; background: transparent; color: var(--text); outline: none; }
-.exam-title-card input[type="text"]:focus { border-bottom-color: var(--accent); }
 .exam-title-card textarea { width: 100%; border: none; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--sub); padding: 8px 4px; background: transparent; resize: none; outline: none; margin-top: 12px; min-height: 50px; }
-.exam-title-card textarea:focus { border-bottom-color: var(--accent); }
-
-/* ===== セクションカード ===== */
-.section-card {
-  background: var(--accent-light); border-radius: 10px;
-  padding: 20px 24px; margin-bottom: 16px;
-  border: 2px dashed var(--accent);
-  border-left: 6px solid var(--accent);
-  position: relative;
-}
-.section-card .section-label { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.section-card { background: var(--accent-light); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; border: 2px dashed var(--accent); border-left: 6px solid var(--accent); position: relative; }
+.section-card .section-label { font-size: 11px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
 .section-card input[type="text"] { font-size: 18px; font-weight: bold; border: none; border-bottom: 2px solid rgba(79,70,229,0.3); width: 100%; padding: 6px 4px; background: transparent; color: var(--accent-dark); outline: none; }
-.section-card input[type="text"]:focus { border-bottom-color: var(--accent); }
 .section-card textarea { width: 100%; border: none; border-bottom: 1px solid rgba(79,70,229,0.2); font-size: 14px; color: var(--sub); padding: 6px 4px; background: transparent; resize: none; outline: none; margin-top: 8px; min-height: 40px; }
 .section-card .remove-btn { position: absolute; top: 14px; right: 14px; background: transparent; border: 1px solid rgba(79,70,229,0.3); color: var(--accent); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-.section-card .remove-btn:hover { background: var(--accent); color: white; }
-
-/* ===== 問題カード ===== */
 .q-card { padding: 24px 28px; cursor: pointer; position: relative; }
 .q-card .q-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
-.q-card .q-idx { font-size: 11px; font-weight: 800; color: var(--sub); letter-spacing: 0.5px; text-transform: uppercase; }
-.q-card textarea.q-text-input {
-  width: 100%; border: none; border-bottom: 2px solid var(--border);
-  font-size: 16px; color: var(--text); padding: 6px 4px;
-  background: transparent; resize: none; outline: none; min-height: 50px; font-weight: 500;
-}
-.q-card textarea.q-text-input:focus { border-bottom-color: var(--accent); }
-.q-card textarea.q-desc-input {
-  width: 100%; border: none; border-bottom: 1px solid var(--border);
-  font-size: 13px; color: var(--sub); padding: 4px 4px;
-  background: transparent; resize: none; outline: none; min-height: 30px;
-}
-.q-card textarea.q-desc-input:focus { border-bottom-color: var(--accent); }
-.q-card .q-desc-label { font-size: 11px; color: #94a3b8; margin: 8px 0 2px 0; }
-
-/* 選択肢 */
+.q-card .q-idx { font-size: 11px; font-weight: 800; color: var(--sub); }
+.q-card textarea.q-text-input { width: 100%; border: none; border-bottom: 2px solid var(--border); font-size: 16px; color: var(--text); padding: 6px 4px; background: transparent; resize: none; outline: none; min-height: 50px; font-weight: 500; }
+.q-card textarea.q-desc-input { width: 100%; border: none; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--sub); padding: 4px 4px; background: transparent; resize: none; outline: none; min-height: 30px; }
 .choice-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding: 4px 0; }
-.choice-indicator { width: 22px; height: 22px; border: 2px solid #cbd5e1; border-radius: 50%; flex-shrink: 0; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.choice-indicator { width: 22px; height: 22px; border: 2px solid #cbd5e1; border-radius: 50%; flex-shrink: 0; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
 .choice-indicator.square { border-radius: 4px; }
 .choice-indicator.correct { background: var(--accent); border-color: var(--accent); }
 .choice-indicator.correct::after { content: '✓'; color: white; font-size: 13px; font-weight: bold; }
-.choice-row input[type="text"] {
-  flex: 1; border: none; border-bottom: 1px solid var(--border);
-  font-size: 15px; padding: 6px 4px; background: transparent; outline: none; color: var(--text);
-}
-.choice-row input[type="text"]:focus { border-bottom-color: var(--accent); }
+.choice-row input[type="text"] { flex: 1; border: none; border-bottom: 1px solid var(--border); font-size: 15px; padding: 6px 4px; background: transparent; outline: none; }
 .choice-row .del-choice { background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 18px; padding: 2px 6px; border-radius: 4px; }
-.choice-row .del-choice:hover { color: var(--danger); background: #fef2f2; }
-.add-choice-btn { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: bold; cursor: pointer; padding: 6px 0; margin-top: 4px; }
-.add-choice-btn:hover { text-decoration: underline; }
-
-/* TF */
+.add-choice-btn { background: none; border: none; color: var(--accent); font-size: 14px; font-weight: bold; cursor: pointer; padding: 6px 0; }
 .tf-choice { display: flex; gap: 12px; margin-top: 8px; }
-.tf-opt { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; transition: all 0.15s; }
+.tf-opt { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
 .tf-opt.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
-
-/* 記述式 */
 .text-placeholder { border: 1px solid var(--border); border-radius: 4px; padding: 12px; color: #94a3b8; font-size: 14px; margin-top: 12px; background: #f8fafc; }
-.model-ans-label { font-size: 11px; color: #94a3b8; margin: 12px 0 4px 0; }
-.model-ans-input { width: 100%; border: none; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--sub); padding: 6px 4px; background: transparent; resize: none; outline: none; min-height: 40px; }
-.model-ans-input:focus { border-bottom-color: var(--accent); }
-
-/* カードフッター */
-.q-card-footer {
-  display: flex; justify-content: flex-end; align-items: center;
-  gap: 12px; margin-top: 18px; padding-top: 14px;
-  border-top: 1px solid var(--border);
-}
+.model-ans-input { width: 100%; border: none; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--sub); padding: 6px 4px; background: transparent; resize: none; outline: none; min-height: 40px; margin-top:8px;}
+.q-card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
 .score-input-wrap { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--sub); }
 .score-input-wrap input { width: 56px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; text-align: center; }
-.diff-select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
-.type-select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+.diff-select, .type-select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
 .del-q-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; padding: 6px; border-radius: 4px; font-size: 14px; }
-.del-q-btn:hover { color: var(--danger); background: #fef2f2; }
 .duplicate-q-btn { background: none; border: 1px solid var(--border); color: var(--sub); cursor: pointer; padding: 6px 10px; border-radius: 4px; font-size: 13px; font-weight: bold; }
-.duplicate-q-btn:hover { color: var(--accent); background: var(--accent-light); border-color: var(--accent); }
-
-/* 追加ボタンエリア */
-.add-area {
-  display: flex; gap: 12px; justify-content: center;
-  margin-bottom: 20px;
-}
-.add-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 10px 20px; border: 2px dashed var(--border);
-  border-radius: 8px; background: white; cursor: pointer; font-size: 14px;
-  color: var(--sub); font-weight: bold; transition: all 0.15s;
-}
-.add-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-.add-btn .icon { font-size: 18px; }
-
-/* ===== サイドバー ===== */
+.add-area { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+.add-btn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; border: 2px dashed var(--border); border-radius: 8px; background: white; cursor: pointer; font-size: 14px; color: var(--sub); font-weight: bold; }
 .sidebar-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px; }
-.sidebar-card h3 { margin: 0 0 14px 0; font-size: 14px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-card h3 { margin: 0 0 14px 0; font-size: 14px; color: var(--sub); }
 .sidebar-item { display: flex; flex-direction: column; margin-bottom: 14px; }
 .sidebar-item label { font-size: 12px; font-weight: bold; color: var(--sub); margin-bottom: 5px; }
 .sidebar-item input, .sidebar-item select { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
-.sidebar-item input[type="color"] { height: 38px; padding: 2px; cursor: pointer; }
 .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
 .toggle-switch { position: relative; width: 42px; height: 24px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
@@ -163,37 +63,17 @@ body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: 
 .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; bottom: 3px; left: 3px; background: white; border-radius: 50%; transition: 0.2s; }
 .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
 .toggle-switch input:checked + .toggle-slider:before { transform: translateX(18px); }
-
-/* ===== アクションボタン ===== */
 .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 .btn-primary { background: var(--accent); color: white; }
-.btn-primary:hover { background: var(--accent-dark); }
 .btn-success { background: var(--success); color: white; }
-.btn-success:hover { background: #059669; }
 .btn-outline { background: white; color: var(--accent); border: 2px solid var(--accent); }
-.btn-outline:hover { background: var(--accent-light); }
 .btn-blue { background: var(--blue-btn) !important; color: white !important; }
-.btn-blue:hover { background: #0d47a1 !important; }
-
-/* ===== トースト ===== */
-.toast {
-  position: fixed; bottom: 30px; right: 30px;
-  background: #1e293b; color: white;
-  padding: 12px 20px; border-radius: 8px;
-  font-size: 14px; font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  opacity: 0; transform: translateY(10px);
-  transition: all 0.3s;
-  z-index: 999;
-}
+.toast { position: fixed; bottom: 30px; right: 30px; background: #1e293b; color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 999; }
 .toast.show { opacity: 1; transform: translateY(0); }
-
-/* ===== モーダル（インポート） ===== */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; }
 .modal-overlay.show { display: flex; }
-.modal-box { background: white; border-radius: 12px; padding: 28px; width: 90%; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-.modal-box h3 { margin: 0 0 14px 0; color: var(--text); }
-.modal-box textarea { width: 100%; height: 180px; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 14px; resize: vertical; font-family: monospace; }
+.modal-box { background: white; border-radius: 12px; padding: 28px; width: 90%; max-width: 600px; }
+.modal-box textarea { width: 100%; height: 180px; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-size: 14px; resize: vertical; }
 .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; }
 </style>
 </head>
@@ -204,45 +84,46 @@ body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: 
   <div class="actions">
     <button class="btn btn-blue" onclick="openImportModal()">⬆ インポート</button>
     <button class="btn" style="background:rgba(255,255,255,0.15); color:white;" onclick="previewJSON()">👁 JSONプレビュー</button>
-    <button class="btn btn-success" onclick="downloadConfig()">⬇ config.json ダウンロード</button>
+    <button class="btn btn-success" onclick="downloadConfig()">⬇ ダウンロードして配信開始</button>
   </div>
 </header>
 
 <div class="editor-layout">
-
   <div class="editor-main">
-
     <div class="exam-title-card">
       <input type="text" id="exam-title-input" placeholder="試験のタイトルを入力してください..." value="" oninput="syncSidebarId()">
       <textarea id="exam-desc-input" placeholder="試験の説明・注意事項（任意）" rows="2"></textarea>
     </div>
-
     <div id="items-container"></div>
-
     <div class="add-area">
       <button class="add-btn" onclick="addQuestion('single')"><span class="icon">＋</span>問題を追加</button>
       <button class="add-btn" onclick="addSection()"><span class="icon">📑</span>セクションを追加</button>
     </div>
-
   </div>
 
   <div class="editor-sidebar">
-
     <div class="sidebar-card">
       <h3>試験設定</h3>
       <div class="sidebar-item"><label>試験ID</label><input type="text" id="cfg-id" value="EXAM-2026-A"></div>
       <div class="sidebar-item"><label>既定の点数（初期値）</label><input type="number" id="cfg-default-score" value="10" min="1"></div>
       <div class="sidebar-item"><label>有効開始日時</label><input type="datetime-local" id="cfg-start"></div>
       <div class="sidebar-item"><label>有効終了日時</label><input type="datetime-local" id="cfg-end"></div>
-      <div class="sidebar-item"><label>制限時間（秒）</label><input type="number" id="cfg-limit" value="1800" min="60"></div>
-      <div class="sidebar-item"><label>テーマカラー</label><input type="color" id="cfg-color" value="#1565c0"></div>
+      <div class="sidebar-item"><label>制限時間（秒）</label><input type="number" id="cfg-limit" placeholder="空欄で無制限" value="1800"></div>
+      <div class="sidebar-item"><label>テーマカラー</label><input type="color" id="cfg-color" value="#1565c0" style="height:38px;padding:2px;cursor:pointer;"></div>
     </div>
 
     <div class="sidebar-card">
-      <h3>表示設定</h3>
+      <h3>表示・機能設定</h3>
       <div class="toggle-row"><span>進捗バーを表示</span><label class="toggle-switch"><input type="checkbox" id="cfg-progress" checked><span class="toggle-slider"></span></label></div>
       <div class="toggle-row"><span>問題番号を表示</span><label class="toggle-switch"><input type="checkbox" id="cfg-qnum" checked><span class="toggle-slider"></span></label></div>
       <div class="toggle-row"><span>自動提出（時間切れ）</span><label class="toggle-switch"><input type="checkbox" id="cfg-autosubmit" checked><span class="toggle-slider"></span></label></div>
+    </div>
+
+    <div class="sidebar-card">
+      <h3>並び替え (ランダム化)</h3>
+      <div class="toggle-row"><span>問題全体をランダム</span><label class="toggle-switch"><input type="checkbox" id="cfg-rand-q"><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span>セクション内問題ランダム</span><label class="toggle-switch"><input type="checkbox" id="cfg-rand-sec"><span class="toggle-slider"></span></label></div>
+      <div class="toggle-row"><span>選択肢をランダム</span><label class="toggle-switch"><input type="checkbox" id="cfg-rand-c"><span class="toggle-slider"></span></label></div>
     </div>
 
     <div class="sidebar-card">
@@ -257,7 +138,6 @@ body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: 
       <h3 style="color:var(--accent);">統計情報</h3>
       <div id="stats-panel" style="font-size:14px; line-height:2;"></div>
     </div>
-
   </div>
 </div>
 
@@ -266,7 +146,6 @@ body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: 
 <div class="modal-overlay" id="import-modal">
   <div class="modal-box">
     <h3>config.json をインポート</h3>
-    <p style="font-size:13px;color:#64748b;margin-top:0;">既存の config.json の中身を貼り付けてください。</p>
     <textarea id="import-textarea" placeholder='{"settings":{...},"questions":[...]}'></textarea>
     <div class="modal-btns">
       <button class="btn btn-outline" onclick="closeImportModal()">キャンセル</button>
@@ -287,216 +166,135 @@ body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: 
 </div>
 
 <script>
-let items = []; 
-let nextId = 1;
+let items = []; let nextId = 1;
+const TYPES = { single:'単一選択', multiple:'複数選択', tf:'○×問題', text:'記述式', perfect_text:'完全回答記述' };
 
-const TYPES = {
-  single:   { label: '単一選択（ラジオ）' },
-  multiple: { label: '複数選択（チェックボックス）' },
-  tf:       { label: '○×問題' },
-  text:     { label: '記述式' },
-  perfect_text: { label: '完全回答記述' }
-};
-
-window.onload = () => {
-  addQuestion('single', false);
-  renderAll();
-  updateStats();
-};
+window.onload = () => { addQuestion('single', false); renderAll(); };
 
 function addQuestion(type = 'single', doRender = true) {
   const id = 'q' + (nextId++);
-  const defaultScore = parseInt(document.getElementById('cfg-default-score').value) || 10;
+  const defScore = parseInt(document.getElementById('cfg-default-score').value) || 10;
   items.push({
-    id, type, category: 'question',
-    text: '',
-    description: '',
-    options: type === 'tf' ? ['○', '×'] : (type === 'text' || type === 'perfect_text' ? [] : ['', '', '', '']),
-    answer: (type === 'text' || type === 'perfect_text') ? [''] : [0],
-    score: defaultScore,
-    difficulty: '普',
-    modelAnswer: ''
+    id, type, category: 'question', text: '', description: '',
+    options: type === 'tf' ? ['○', '×'] : (type.includes('text') ? [] : ['', '', '', '']),
+    answer: type.includes('text') ? [''] : [0],
+    score: defScore, difficulty: '普', modelAnswer: ''
   });
-  if(doRender) { renderAll(); updateStats(); scrollToLast(); }
+  if(doRender) { renderAll(); scrollToLast(); }
+}
+
+function addSection() {
+  items.push({ id: 'sec' + (nextId++), category: 'section', type: 'section', title: '', description: '' });
+  renderAll(); scrollToLast();
 }
 
 function duplicateQuestion(idx) {
-  const source = items[idx];
-  const copy = JSON.parse(JSON.stringify(source));
+  const copy = JSON.parse(JSON.stringify(items[idx]));
   copy.id = (copy.category === 'section' ? 'sec' : 'q') + (nextId++);
   items.splice(idx + 1, 0, copy);
-  renderAll();
-  showToast('📋 質問を複製しました');
-}
-
-function addSection(doRender = true) {
-  items.push({
-    id: 'sec' + (nextId++), category: 'section',
-    type: 'section',
-    title: '',
-    description: ''
-  });
-  if(doRender) { renderAll(); updateStats(); scrollToLast(); }
+  renderAll(); showToast('📋 複製しました');
 }
 
 function scrollToLast() {
-  setTimeout(() => {
-    const container = document.getElementById('items-container');
-    if(container.lastChild) container.lastChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 50);
+  setTimeout(() => { const c = document.getElementById('items-container'); if(c.lastChild) c.lastChild.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 50);
 }
 
 function renderAll() {
-  const container = document.getElementById('items-container');
-  container.innerHTML = '';
+  const c = document.getElementById('items-container'); c.innerHTML = '';
   let qCount = 0;
-
   items.forEach((item, idx) => {
-    if(item.category === 'section') {
-      container.appendChild(renderSection(item, idx));
-    } else {
-      qCount++;
-      container.appendChild(renderQuestion(item, idx, qCount));
-    }
+    if(item.category === 'section') c.appendChild(renderSection(item, idx));
+    else { qCount++; c.appendChild(renderQuestion(item, idx, qCount)); }
   });
   updateStats();
 }
 
 function renderSection(item, idx) {
-  const div = document.createElement('div');
-  div.className = 'section-card';
-  div.dataset.idx = idx;
-  div.innerHTML = `
+  const d = document.createElement('div'); d.className = 'section-card';
+  d.innerHTML = `
     <div class="section-label">📑 セクション</div>
-    <input type="text" placeholder="セクションのタイトル" value="${esc(item.title)}"
-      oninput="items[${idx}].title=this.value">
-    <textarea placeholder="このセクションの説明・指示（任意）" rows="2"
-      oninput="items[${idx}].description=this.value">${esc(item.description)}</textarea>
+    <input type="text" placeholder="セクションのタイトル" value="${esc(item.title)}" oninput="items[${idx}].title=this.value">
+    <textarea placeholder="説明（任意）" rows="2" oninput="items[${idx}].description=this.value">${esc(item.description)}</textarea>
     <button class="remove-btn" onclick="removeItem(${idx})">削除</button>
   `;
-  return div;
+  return d;
 }
 
 function renderQuestion(item, idx, qNum) {
-  const div = document.createElement('div');
-  div.className = 'card q-card';
-  div.dataset.idx = idx;
-  div.onclick = (e) => {
-    if(e.target.closest('.q-card-footer') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON' || e.target.classList.contains('choice-indicator')) return;
-    document.querySelectorAll('.q-card').forEach(c => c.classList.remove('focused'));
-    div.classList.add('focused');
-  };
+  const d = document.createElement('div'); d.className = 'card q-card';
+  d.onclick = e => { if(!['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName) && !e.target.closest('.choice-indicator')) { document.querySelectorAll('.q-card').forEach(c=>c.classList.remove('focused')); d.classList.add('focused'); } };
 
-  let choicesHtml = '';
+  let chHtml = '';
   if(item.type === 'single' || item.type === 'multiple') {
-    const indicatorClass = item.type === 'multiple' ? 'square' : '';
-    choicesHtml = `<div style="margin-top:14px;">`;
+    const isM = item.type === 'multiple';
+    chHtml = `<div style="margin-top:14px;">`;
     item.options.forEach((opt, oi) => {
-      const isCorrect = item.answer.includes(oi);
-      choicesHtml += `
-        <div class="choice-row" data-oi="${oi}">
-          <div class="choice-indicator ${indicatorClass} ${isCorrect ? 'correct' : ''}"
-            onclick="toggleCorrect(${idx}, ${oi})" title="正解に設定"></div>
-          <input type="text" value="${esc(opt)}" placeholder="選択肢 ${oi + 1}"
-            oninput="items[${idx}].options[${oi}]=this.value">
-          <button class="del-choice" onclick="removeChoice(${idx}, ${oi})" title="削除">×</button>
-        </div>`;
-    });
-    choicesHtml += `</div>
-      <button class="add-choice-btn" onclick="addChoice(${idx})">＋ 選択肢を追加</button>`;
-  } else if(item.type === 'tf') {
-    choicesHtml = `
-      <div class="tf-choice">
-        <div class="tf-opt ${item.answer.includes(0) ? 'selected' : ''}" onclick="setTFAnswer(${idx}, 0)">○（正しい）</div>
-        <div class="tf-opt ${item.answer.includes(1) ? 'selected' : ''}" onclick="setTFAnswer(${idx}, 1)">×（誤り）</div>
+      const isC = item.answer.includes(oi);
+      chHtml += `<div class="choice-row">
+        <div class="choice-indicator ${isM?'square':''} ${isC?'correct':''}" onclick="toggleCorrect(${idx}, ${oi})"></div>
+        <input type="text" value="${esc(opt)}" oninput="items[${idx}].options[${oi}]=this.value">
+        <button class="del-choice" onclick="removeChoice(${idx}, ${oi})">×</button>
       </div>`;
-  } else if(item.type === 'text' || item.type === 'perfect_text') {
+    });
+    chHtml += `</div><button class="add-choice-btn" onclick="addChoice(${idx})">＋ 選択肢追加</button>`;
+  } else if(item.type === 'tf') {
+    chHtml = `<div class="tf-choice">
+      <div class="tf-opt ${item.answer.includes(0)?'selected':''}" onclick="setTF(${idx},0)">○（正しい）</div>
+      <div class="tf-opt ${item.answer.includes(1)?'selected':''}" onclick="setTF(${idx},1)">×（誤り）</div>
+    </div>`;
+  } else if(item.type.includes('text')) {
     const isPerfect = item.type === 'perfect_text';
-    choicesHtml = `
-      <div class="text-placeholder">（受験者がここにテキストを入力します）</div>
-      <div class="model-ans-label">模範解答（${isPerfect ? '完全一致のみ正解・それ以外は×' : '部分一致等で採点'}）</div>
-      <textarea class="model-ans-input" placeholder="模範解答を入力..." rows="2"
-        oninput="items[${idx}].modelAnswer=this.value">${esc(item.modelAnswer)}</textarea>`;
+    chHtml = `<div class="text-placeholder">（受験者がテキスト入力）</div>
+      <div style="font-size:11px;color:#94a3b8;margin:12px 0 4px 0;">模範解答（${isPerfect ? '完全一致のみ正解' : '部分一致等'}）</div>
+      <textarea class="model-ans-input" placeholder="模範解答..." oninput="items[${idx}].modelAnswer=this.value">${esc(item.modelAnswer)}</textarea>`;
   }
 
-  div.innerHTML = `
+  d.innerHTML = `
     <div class="q-card-top">
       <div style="flex:1;">
         <div class="q-idx">問題 ${qNum}</div>
-        <textarea class="q-text-input" placeholder="問題文を入力してください..."
-          rows="2" oninput="items[${idx}].text=this.value;autoResize(this)">${esc(item.text)}</textarea>
-        <div class="q-desc-label">補足説明（任意）</div>
-        <textarea class="q-desc-input" placeholder="問題の補足・ヒントなど（省略可）"
-          oninput="items[${idx}].description=this.value">${esc(item.description)}</textarea>
+        <textarea class="q-text-input" placeholder="問題文" oninput="items[${idx}].text=this.value;this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(item.text)}</textarea>
+        <textarea class="q-desc-input" placeholder="補足説明（任意）" oninput="items[${idx}].description=this.value" style="margin-top:8px;">${esc(item.description)}</textarea>
       </div>
     </div>
-    ${choicesHtml}
+    ${chHtml}
     <div class="q-card-footer">
-      <div class="score-input-wrap">
-        配点:
-        <input type="number" value="${item.score}" min="1" max="100"
-          oninput="items[${idx}].score=parseInt(this.value)||0; updateStats()">
-        点
-      </div>
+      <div class="score-input-wrap">配点:<input type="number" value="${item.score}" oninput="items[${idx}].score=parseInt(this.value)||0; updateStats()">点</div>
       <select class="diff-select" onchange="items[${idx}].difficulty=this.value">
         <option value="易" ${item.difficulty==='易'?'selected':''}>易</option>
         <option value="普" ${item.difficulty==='普'?'selected':''}>普</option>
         <option value="難" ${item.difficulty==='難'?'selected':''}>難</option>
       </select>
       <select class="type-select" onchange="changeType(${idx}, this.value)">
-        ${Object.entries(TYPES).map(([k,v]) => `<option value="${k}" ${item.type===k?'selected':''}>${v.label}</option>`).join('')}
+        ${Object.entries(TYPES).map(([k,v]) => `<option value="${k}" ${item.type===k?'selected':''}>${v}</option>`).join('')}
       </select>
       <button class="duplicate-q-btn" onclick="duplicateQuestion(${idx})">📋 複製</button>
-      <button class="del-q-btn" onclick="removeItem(${idx})" title="この問題を削除">🗑</button>
-    </div>
-  `;
-  return div;
+      <button class="del-q-btn" onclick="removeItem(${idx})">🗑</button>
+    </div>`;
+  return d;
 }
 
 function toggleCorrect(idx, oi) {
-  const item = items[idx];
-  if(item.type === 'single') {
-    item.answer = [oi];
-  } else {
-    if(item.answer.includes(oi)) item.answer = item.answer.filter(v => v !== oi);
-    else item.answer.push(oi);
+  const t = items[idx].type;
+  if(t === 'single') items[idx].answer = [oi];
+  else {
+    let arr = items[idx].answer;
+    if(arr.includes(oi)) arr = arr.filter(v=>v!==oi); else arr.push(oi);
+    items[idx].answer = arr;
   }
   renderAll();
 }
-
-function setTFAnswer(idx, val) {
-  items[idx].answer = [val];
+function setTF(idx, v) { items[idx].answer = [v]; renderAll(); }
+function addChoice(idx) { items[idx].options.push(''); renderAll(); }
+function removeChoice(idx, oi) { if(items[idx].options.length>2) { items[idx].options.splice(oi,1); items[idx].answer=[0]; renderAll(); } }
+function changeType(idx, t) {
+  items[idx].type = t;
+  if(t==='tf') { items[idx].options=['○','×']; items[idx].answer=[0]; }
+  else if(t.includes('text')) { items[idx].options=[]; items[idx].answer=[]; }
+  else { items[idx].options=['','','','']; items[idx].answer=[0]; }
   renderAll();
 }
-
-function addChoice(idx) {
-  if(items[idx].options.length >= 20) { showToast('選択肢は最大20個です'); return; }
-  items[idx].options.push('');
-  renderAll();
-}
-
-function removeChoice(idx, oi) {
-  if(items[idx].options.length <= 2) { showToast('選択肢は最低2個必要です'); return; }
-  items[idx].options.splice(oi, 1);
-  items[idx].answer = items[idx].answer.filter(v => v < items[idx].options.length);
-  if(items[idx].answer.length === 0) items[idx].answer = [0];
-  renderAll();
-}
-
-function changeType(idx, type) {
-  const item = items[idx];
-  item.type = type;
-  if(type === 'tf') { item.options = ['○', '×']; item.answer = [0]; }
-  else if(type === 'text' || type === 'perfect_text') { item.options = []; item.answer = []; item.modelAnswer = item.modelAnswer || ''; }
-  else { item.options = item.options.length >= 2 ? item.options : ['', '', '', '']; item.answer = [0]; }
-  renderAll();
-}
-
-function removeItem(idx) {
-  if(!confirm('削除しますか？')) return;
-  items.splice(idx, 1);
-  renderAll();
-}
+function removeItem(idx) { if(confirm('削除しますか？')) { items.splice(idx,1); renderAll(); } }
 
 function updateStats() {
   const qs = items.filter(i => i.category === 'question');
@@ -504,33 +302,34 @@ function updateStats() {
   const total = qs.reduce((s, q) => s + (q.score || 0), 0);
   const byType = {};
   qs.forEach(q => { byType[q.type] = (byType[q.type] || 0) + 1; });
-  const labels = { single:'単一選択', multiple:'複数選択', tf:'○×', text:'記述式', perfect_text:'完全回答記述' };
   document.getElementById('stats-panel').innerHTML = `
     <b>問題数:</b> ${qs.length} 問<br>
     <b>セクション数:</b> ${secs.length} 個<br>
     <b>合計配点:</b> ${total} 点<br>
-    ${Object.entries(byType).map(([k,v]) => `<b>${labels[k]||k}:</b> ${v}問`).join('<br>')}
+    ${Object.entries(byType).map(([k,v]) => `<b>${TYPES[k]||k}:</b> ${v}問`).join('<br>')}
   `;
 }
 
 function syncSidebarId() {}
 
 function buildJSON() {
-  const output = {
+  const limStr = document.getElementById('cfg-limit').value;
+  return {
     settings: {
       examId: document.getElementById('cfg-id').value || "EXAM-" + Date.now(),
       examName: document.getElementById('exam-title-input').value || '無題の試験',
       examDescription: document.getElementById('exam-desc-input').value,
       startTime: document.getElementById('cfg-start').value,
       endTime: document.getElementById('cfg-end').value,
-      timeLimit: parseInt(document.getElementById('cfg-limit').value) || 1800,
+      timeLimit: limStr ? parseInt(limStr) : null,
       autoSubmit: document.getElementById('cfg-autosubmit').checked,
-      randomQuestion: false,
-      randomChoice: false,
-      themeColor: document.getElementById('cfg-color').value,
       showProgress: document.getElementById('cfg-progress').checked,
       showScore: true,
       showQNumber: document.getElementById('cfg-qnum').checked,
+      randomQuestion: document.getElementById('cfg-rand-q').checked,
+      randomSectionQuestion: document.getElementById('cfg-rand-sec').checked,
+      randomChoice: document.getElementById('cfg-rand-c').checked,
+      themeColor: document.getElementById('cfg-color').value,
       security: {
         tabChange: document.getElementById('sec-tab').checked,
         fullscreen: document.getElementById('sec-fs').checked,
@@ -539,121 +338,81 @@ function buildJSON() {
         devTools: document.getElementById('sec-dev').checked
       }
     },
-    questions: items.map(item => {
-      if(item.category === 'section') {
-        return { id: item.id, type: 'section', title: item.title, description: item.description };
-      }
-      const q = {
-        id: item.id, type: item.type,
-        text: item.text,
-        description: item.description || '',
-        score: item.score || 10,
-        difficulty: item.difficulty || '普'
-      };
-      if(item.type === 'text' || item.type === 'perfect_text') {
-        q.options = [];
-        q.answer = [item.modelAnswer || ''];
-      } else {
-        q.options = item.options;
-        q.answer = item.answer;
-      }
+    questions: items.map(i => {
+      if(i.category === 'section') return { id: i.id, type: 'section', title: i.title, description: i.description };
+      const q = { id: i.id, type: i.type, text: i.text, description: i.description, score: i.score, difficulty: i.difficulty };
+      if(i.type.includes('text')) { q.options = []; q.answer = [i.modelAnswer || '']; }
+      else { q.options = i.options; q.answer = i.answer; }
       return q;
     })
   };
-  return output;
 }
 
 function downloadConfig() {
   const output = buildJSON();
+  output.status = 'active';
   
   // システムへの連動保存
   let exams = JSON.parse(localStorage.getItem('EXAM_SYSTEM_EXAMS') || '[]');
   exams = exams.filter(e => e.settings.examId !== output.settings.examId);
-  output.status = 'active';
   exams.push(output);
   localStorage.setItem('EXAM_SYSTEM_EXAMS', JSON.stringify(exams));
 
+  // JSONファイルのダウンロードを復元
   const str = JSON.stringify(output, null, 2);
   const blob = new Blob([str], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'config.json';
   a.click();
-  showToast('✅ config.json をダウンロードし、システムへ保存しました');
+  
+  showToast('✅ config.json をダウンロードし、システムへ配信を開始しました');
   closePreviewModal();
 }
 
 function openImportModal() { document.getElementById('import-modal').classList.add('show'); }
 function closeImportModal() { document.getElementById('import-modal').classList.remove('show'); }
-
 function importJSON() {
   try {
-    const raw = document.getElementById('import-textarea').value.trim();
-    const data = JSON.parse(raw);
-    if(!data.settings || !data.questions) throw new Error('形式が正しくありません');
-
-    const s = data.settings;
+    const raw = JSON.parse(document.getElementById('import-textarea').value.trim());
+    const s = raw.settings;
     document.getElementById('cfg-id').value = s.examId || '';
     document.getElementById('exam-title-input').value = s.examName || '';
     document.getElementById('exam-desc-input').value = s.examDescription || '';
     document.getElementById('cfg-start').value = s.startTime || '';
     document.getElementById('cfg-end').value = s.endTime || '';
-    document.getElementById('cfg-limit').value = s.timeLimit || 1800;
+    document.getElementById('cfg-limit').value = s.timeLimit || '';
     document.getElementById('cfg-color').value = s.themeColor || '#1565c0';
     document.getElementById('cfg-autosubmit').checked = s.autoSubmit !== false;
     document.getElementById('cfg-progress').checked = s.showProgress !== false;
     document.getElementById('cfg-qnum').checked = s.showQNumber !== false;
+    document.getElementById('cfg-rand-q').checked = !!s.randomQuestion;
+    document.getElementById('cfg-rand-sec').checked = !!s.randomSectionQuestion;
+    document.getElementById('cfg-rand-c').checked = !!s.randomChoice;
+    
     if(s.security) {
       document.getElementById('sec-tab').checked = s.security.tabChange !== false;
       document.getElementById('sec-fs').checked = s.security.fullscreen !== false;
       document.getElementById('sec-copy').checked = s.security.preventCopy !== false;
       document.getElementById('sec-dev').checked = s.security.devTools !== false;
     }
-
-    items = [];
-    nextId = 1;
-    data.questions.forEach(q => {
-      if(q.type === 'section') {
-        items.push({ id: q.id || ('sec'+nextId++), category: 'section', type: 'section', title: q.title || '', description: q.description || '' });
-      } else {
-        items.push({
-          id: q.id || ('q'+nextId++), category: 'question',
-          type: q.type || 'single',
-          text: q.text || '', description: q.description || '',
-          options: q.options || [], answer: q.answer || [0],
-          score: q.score || 10, difficulty: q.difficulty || '普',
-          modelAnswer: (q.type === 'text' || q.type === 'perfect_text') && q.answer ? q.answer[0] : ''
-        });
-      }
+    
+    items = []; nextId = 1;
+    raw.questions.forEach(q => {
+      if(q.type === 'section') items.push({ id: q.id, category: 'section', type: 'section', title: q.title, description: q.description });
+      else items.push({ id: q.id, category: 'question', type: q.type, text: q.text, description: q.description, options: q.options||[], answer: q.answer||[], score: q.score||10, difficulty: q.difficulty||'普', modelAnswer: q.type.includes('text')?q.answer[0]:'' });
     });
-
-    renderAll();
-    closeImportModal();
-    showToast('✅ インポートしました');
-  } catch(e) {
-    alert('インポートエラー: ' + e.message);
-  }
+    renderAll(); closeImportModal(); showToast('✅ インポート完了');
+  } catch(e) { alert('エラー: ' + e.message); }
 }
 
 function previewJSON() {
-  const str = JSON.stringify(buildJSON(), null, 2);
-  document.getElementById('preview-textarea').value = str;
+  document.getElementById('preview-textarea').value = JSON.stringify(buildJSON(), null, 2);
   document.getElementById('preview-modal').classList.add('show');
 }
 function closePreviewModal() { document.getElementById('preview-modal').classList.remove('show'); }
-
-function showToast(msg) {
-  const el = document.getElementById('toast-msg');
-  el.innerText = msg; el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
-}
-function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
-
-document.addEventListener('click', e => {
-  if(e.target.id === 'import-modal') closeImportModal();
-  if(e.target.id === 'preview-modal') closePreviewModal();
-});
+function showToast(msg) { const e = document.getElementById('toast-msg'); e.innerText = msg; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'), 2800); }
+function esc(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>
