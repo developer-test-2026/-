@@ -1,0 +1,125 @@
+{
+"version": "2.0",
+"tests": [
+{
+"testId": "TEST-2026-001",
+"title": "数学中間試験",
+"description": "数学Ⅰ・A 中間試験",
+"published": true,
+"startTime": "2026-06-20T09:00:00+09:00",
+"endTime": "2026-06-20T10:30:00+09:00",
+
+```
+  "settings": {
+    "timeLimit": 5400,
+    "autoSubmit": true,
+    "allowReview": true,
+    "showCorrectAnswersAfterSubmit": false,
+    "randomQuestionOrder": true,
+    "randomChoiceOrder": true,
+    "saveProgressAutomatically": true,
+    "allowResume": true,
+    "passScore": 60
+  },
+
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "point": 5,
+      "question": "日本の首都はどこですか？",
+
+      "choices": [
+        "東京",
+        "大阪",
+        "名古屋",
+        "札幌"
+      ],
+
+      "answer": [0]
+    },
+
+    {
+      "id": 2,
+      "type": "multiple",
+      "point": 10,
+      "question": "都道府県をすべて選択してください",
+
+      "choices": [
+        "北海道",
+        "東京",
+        "大阪府",
+        "名古屋"
+      ],
+
+      "answer": [0,1,2]
+    },
+
+    {
+      "id": 3,
+      "type": "boolean",
+      "point": 3,
+      "question": "1 + 1 = 2",
+
+      "answer": true
+    },
+
+    {
+      "id": 4,
+      "type": "text",
+      "point": 15,
+      "question": "日本国憲法の三原則を説明しなさい",
+
+      "modelAnswer": "国民主権、基本的人権の尊重、平和主義",
+
+      "manualGrading": true,
+
+      "maxScore": 15
+    }
+  ]
+},
+
+{
+  "testId": "TEST-2026-002",
+  "title": "英語小テスト",
+  "description": "Unit 1〜3",
+
+  "published": false,
+
+  "startTime": "2026-07-01T08:30:00+09:00",
+  "endTime": "2026-07-01T09:00:00+09:00",
+
+  "settings": {
+    "timeLimit": 1800,
+    "autoSubmit": true,
+    "allowReview": true,
+    "showCorrectAnswersAfterSubmit": true,
+    "randomQuestionOrder": false,
+    "randomChoiceOrder": false,
+    "saveProgressAutomatically": true,
+    "allowResume": true,
+    "passScore": 70
+  },
+
+  "questions": [
+    {
+      "id": 1,
+      "type": "single",
+      "point": 5,
+      "question": "Apple の意味は？",
+
+      "choices": [
+        "りんご",
+        "みかん",
+        "ぶどう",
+        "桃"
+      ],
+
+      "answer": [0]
+    }
+  ]
+}
+```
+
+]
+}
