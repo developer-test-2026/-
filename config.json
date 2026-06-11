@@ -1,0 +1,337 @@
+{
+  "settings": {
+    "examId": "EXAM-English-Engage-第5回",
+    "examName": "第5回　Engage小テスト(547〜566)",
+    "examDescription": "",
+    "startTime": "",
+    "endTime": "",
+    "timeLimit": 1800,
+    "autoSubmit": false,
+    "randomQuestion": false,
+    "randomChoice": false,
+    "themeColor": "#1565c0",
+    "showProgress": true,
+    "showScore": true,
+    "showQNumber": true,
+    "security": {
+      "tabChange": true,
+      "fullscreen": true,
+      "preventCopy": true,
+      "preventRightClick": true,
+      "devTools": true
+    }
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "type": "perfect_text",
+      "text": "547\n一週間いなかで過ごすと体によいでしょう。\n( the countryside / good / in / do / a week / will / you ).\n(     )内を並べ替えすべて書きなさい。\n※先頭の文字は大文字にすること。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [],
+      "answer": [
+        "A week in the countryside will do you good."
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "text": "548\nWhen I don't feel (     ), I often listen to music.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "like to study",
+        "like studying",
+        "likely to study",
+        "likely to studying"
+      ],
+      "answer": [
+        1
+      ]
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "text": "549\nMy brother said he (     ) to go to Paris, but he doesn't have enough money.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "would like",
+        "will like",
+        "must have liked",
+        "will be liked"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "text": "550\nThey (     ) politicians for the high unemployment rate.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "abserb",
+        "blame",
+        "repeat",
+        "satisfy"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "text": "551\n\"Peter!  You left the window open!\" shouted Donna.\nDonna (     ) the window open.\n同意文を作りなさい。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "accused of Peter leaving",
+        "accused Peter of leaving",
+        "balmed for Peter leaving",
+        "blamed Peter of leaving"
+      ],
+      "answer": [
+        1
+      ]
+    },
+    {
+      "id": "q6",
+      "type": "perfect_text",
+      "text": "552\nガス管が破裂し、大きな損害を与えた。\nThe gas pipes exploded ( a / and / caused / damage / lot / of ).\n(     )内を並べ替えすべて書きなさい。\n※先頭の文字は大文字にすること。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [],
+      "answer": [
+        "The gas pipes exploded and caused a lot of damage."
+      ]
+    },
+    {
+      "id": "q8",
+      "type": "single",
+      "text": "553\nThe energy crisis a few years ago (     ) prices of everything to rise.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "watched",
+        "caused",
+        "surprised",
+        "arose"
+      ],
+      "answer": [
+        1
+      ]
+    },
+    {
+      "id": "q9",
+      "type": "perfect_text",
+      "text": "554\nNot following the instructions ( in / serious / can / injury / result ).\n(     )内を並べ替えすべて書きなさい。\n※先頭の文字は大文字にすること。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [],
+      "answer": [
+        "Not following the instructions can result in serious injury."
+      ]
+    },
+    {
+      "id": "q10",
+      "type": "single",
+      "text": "555\nThe new rule resulted in fewer traffic accidents.\n下線部を同じ意味の語句にしなさい。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "came down",
+        "came out",
+        "gave in",
+        "led to"
+      ],
+      "answer": [
+        3
+      ]
+    },
+    {
+      "id": "q11",
+      "type": "perfect_text",
+      "text": "556\nHis passion for ( art / him / led / to / start ) collecting paintings.\n(     )内を並べ替えすべて書きなさい。\n※先頭の文字は大文字にすること。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [],
+      "answer": [
+        "His passion for art led him to start collecting paintings."
+      ]
+    },
+    {
+      "id": "q12",
+      "type": "single",
+      "text": "557\nThis new project is designed to provide young people (     ) work.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "for",
+        "to",
+        "with",
+        "without"
+      ],
+      "answer": [
+        2
+      ]
+    },
+    {
+      "id": "q13",
+      "type": "perfect_text",
+      "text": "558\n私たちの感謝を伝えるためにこのささやかな贈り物を差し上げたいと思います。\nWe would like to ( this / you / small / present / with ) gift to express our appreciation.\n(     )内を並べ替えすべて書きなさい。\n※先頭の文字は大文字にすること。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [],
+      "answer": [
+        "We would like to present you with this small gift to express our appreciation."
+      ]
+    },
+    {
+      "id": "q14",
+      "type": "single",
+      "text": "559\nHe is (     ).",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "married",
+        "a married",
+        "a marriage man",
+        "marriage"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q15",
+      "type": "single",
+      "text": "560\nThe man sitting next to Ellen is getting (     ) her next spring.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "married to",
+        "marry",
+        "marry with",
+        "marrying"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q16",
+      "type": "single",
+      "text": "561\nWhat has made Kazuo decide (     ) that woman?",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "to marry",
+        "to marry with",
+        "marrying",
+        "marrying with"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q17",
+      "type": "single",
+      "text": "562\nCarl, who is over 50 years old, likes to dress like a teenager, but those kinds of clothes (     ) him.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "aren't suitable",
+        "don't suit",
+        "mismatch",
+        "not appropriate"
+      ],
+      "answer": [
+        1
+      ]
+    },
+    {
+      "id": "q18",
+      "type": "single",
+      "text": "563\nI wouldn't buy that sweater if I were you.  It's too big and the colors don't (     ) your jacket.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "match",
+        "fit",
+        "go",
+        "correspond"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q19",
+      "type": "single",
+      "text": "564\nA: Mary, does this bag (     ) well with my dress?\nB: Yes.  They look very nice together.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "see",
+        "suit",
+        "go",
+        "meet"
+      ],
+      "answer": [
+        2
+      ]
+    },
+    {
+      "id": "q20",
+      "type": "single",
+      "text": "565\nI (     ) Peter lied about what he had seen because he is such an honest man.",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [
+        "doubt",
+        "imagine",
+        "suspect",
+        "think"
+      ],
+      "answer": [
+        0
+      ]
+    },
+    {
+      "id": "q21",
+      "type": "perfect_text",
+      "text": "566\nスミスは執事がスパイだと思っている。（1語不要）\n( suspects / is / Smith / spy / a / doubts / that / butler / his ).\n(     )内を並べ替えすべて書きなさい。\n※先頭の文字は大文字にすること。",
+      "description": "",
+      "score": 1,
+      "difficulty": "普",
+      "options": [],
+      "answer": [
+        "Smith suspects that his butler is a spy."
+      ]
+    }
+  ],
+  "status": "active"
+}
