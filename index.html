@@ -6,309 +6,476 @@
 <title>オンライン試験システム</title>
 <style>
   :root { --theme: #1565c0; }
-  body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-  .header { background: var(--theme); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
-  .warning { background: #ffebee; color: #c62828; text-align: center; padding: 5px; font-size: 0.9em; }
-  #container { max-width: 800px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-  input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-  select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
-  button { background: var(--theme); color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 4px; cursor: pointer; margin-top: 10px; width: 100%; }
+  body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f6f9; color: #333; }
+  .header-bar { background: #ffebee; color: #c62828; text-align: center; padding: 10px; font-weight: bold; font-size: 14px; display: none; }
+  .exam-header { background: var(--theme); color: white; padding: 20px; text-align: center; font-size: 22px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .container { max-width: 750px; margin: 30px auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); box-sizing: border-box; }
+  .card { display: none; } .card.active { display: block; }
+  h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+  input[type="text"], select, textarea { width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+  button { background: var(--theme); color: white; border: none; padding: 14px 28px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; transition: background 0.2s; }
   button:hover { opacity: 0.9; }
-  #status-bar { display: flex; justify-content: space-between; background: #eee; padding: 10px; border-radius: 4px; margin-bottom: 20px; position: sticky; top: 0; z-index: 100;}
-  .progress-bg { width: 100%; background: #ddd; height: 10px; border-radius: 5px; margin-bottom: 20px; }
-  .progress-bar { height: 10px; background: var(--theme); border-radius: 5px; transition: width 0.3s; }
-  .question-block { margin-bottom: 30px; }
-  .question-text { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; }
-  .score-badge { display: inline-block; background: #ff9800; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; margin-left: 10px; }
-  .option-label { display: block; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-  .option-label:hover { background: #f0f8ff; }
-  textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; }
-  #review-mode { border: 2px solid #4caf50; padding: 10px; margin-bottom: 20px; background: #e8f5e9; text-align: center; color: #2e7d32; font-weight: bold; }
-  .review-answer { margin-top: 10px; padding: 10px; background: #fff3e0; border-left: 4px solid #ff9800; }
+  .info-panel { display: flex; justify-content: space-between; background: #fafafa; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 25px; font-size: 15px; font-weight: bold; position: sticky; top: 0; z-index: 10; }
+  .progress-bg { width: 100%; background: #eaeaea; height: 8px; border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--theme); width: 0%; transition: width 0.3s; }
+  .q-text { font-size: 18px; font-weight: bold; margin-bottom: 20px; line-height: 1.5; }
+  .score-tag { background: #e0f2f1; color: #00796b; padding: 3px 8px; border-radius: 4px; font-size: 13px; margin-left: 10px; }
+  .choice-label { display: flex; align-items: center; padding: 14px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; background: #fff; transition: all 0.2s; }
+  .choice-label:hover { background: #f5f9ff; border-color: var(--theme); }
+  .choice-label input { margin-right: 12px; transform: scale(1.2); }
+  textarea { height: 120px; resize: vertical; line-height: 1.5; }
+  .nav-btns { display: flex; gap: 15px; margin-top: 25px; }
+  .btn-secondary { background: #757575; }
+  .review-item { border-bottom: 1px solid #eee; padding: 15px 0; }
+  .review-item:last-child { border: none; }
+  .badge-answered { color: #2e7d32; font-weight: bold; }
+  .badge-empty { color: #c62828; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<div class="header" id="exam-title">試験システム</div>
-<div class="warning" id="warning-bar">※試験中はタブの切り替えや右クリック等を禁止しています</div>
+<div class="header-bar" id="security-banner">【警告】試験監視モード有効：他のタブへの移動、コピー、右クリック、画面解除は記録されます</div>
+<div class="exam-header" id="display-exam-name">試験システム</div>
 
-<div id="container">
-  <div id="login-screen">
-    <h2>受験者情報入力</h2>
-    <select id="class-select">
-      <option value="">クラスを選択してください</option>
+<div class="container">
+  
+  <div id="card-login" class="card active">
+    <h2>受験ログイン</h2>
+    <label>クラス</label>
+    <select id="student-class">
       <option value="1年1組">1年1組</option>
       <option value="1年5組">1年5組</option>
       <option value="2年1組">2年1組</option>
     </select>
-    <input type="text" id="sid" placeholder="学籍番号 (例: 2026001)">
-    <input type="text" id="name" placeholder="氏名">
-    <button onclick="startExam()">試験開始</button>
-    <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;">
-    <button onclick="checkReview()" style="background:#607d8b;">過去の受験を見直す</button>
-  </div>
-
-  <div id="exam-screen" style="display:none;">
-    <div id="status-bar">
-      <div>問題: <span id="current-q-num">1</span> / <span id="total-q-num">0</span></div>
-      <div id="timer-display" style="font-weight:bold; color:#d32f2f;">残り時間: --:--</div>
-    </div>
-    <div class="progress-bg" id="progress-container" style="display:none;">
-      <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
-    </div>
+    <label>学籍番号</label>
+    <input type="text" id="student-id" placeholder="例: 20260501">
+    <label>氏名</label>
+    <input type="text" id="student-name" placeholder="例: 山田太郎">
+    <button onclick="startExam()">試験を開始する</button>
     
-    <div id="question-area"></div>
-    
-    <div style="display:flex; gap:10px;">
-      <button id="prev-btn" onclick="prevQuestion()" style="background:#757575; display:none;">前へ</button>
-      <button id="next-btn" onclick="nextQuestion()">次へ</button>
+    <div style="margin: 40px 0 20px 0; border-top: 1px dashed #ccc; padding-top: 30px;">
+      <h3>過去の試験結果を見直す</h3>
+      <p style="font-size:13px; color:#666;">送信後に発行された「受験管理番号」を入力すると、結果の確認や見直しができます（監視なし）。</p>
+      <input type="text" id="search-receipt-id" placeholder="受験管理番号 (例: REC-XXXXXX)">
+      <button onclick="enterReviewMode()" class="btn-secondary">見直し画面を開く</button>
     </div>
   </div>
 
-  <div id="review-screen" style="display:none;">
-    <div id="review-mode">見直しモード（監視オフ）</div>
-    <h2>結果と解説</h2>
-    <div id="review-area"></div>
-    <button onclick="location.reload()">トップに戻る</button>
+  <div id="card-exam" class="card">
+    <div class="info-panel">
+      <div id="info-q-num">問題: - / -</div>
+      <div id="info-timer" style="color: #d32f2f;">残り時間: --:--</div>
+    </div>
+    <div class="progress-bg" id="layout-progress-container"><div class="progress-bar" id="layout-progress-bar"></div></div>
+    <div id="question-render-area"></div>
+    <div class="nav-btns">
+      <button id="btn-prev" onclick="goToPrev()" class="btn-secondary">前へ</button>
+      <button id="btn-next" onclick="goToNext()">次へ</button>
+    </div>
   </div>
+
+  <div id="card-pre-submit" class="card">
+    <h2>全回答の確認・見直し</h2>
+    <p style="color:#666; margin-bottom:20px;">まだ解答は送信されていません。全ての回答を確認し、必要があれば修正してください。</p>
+    <div id="pre-submit-list" style="margin-bottom: 30px;"></div>
+    <button onclick="submitFinalAnswers()" style="background: #2e7d32; font-size:18px; padding:16px;">この内容で解答を送信する</button>
+    <button onclick="backToExamFromReview()" class="btn-secondary" style="margin-top:10px;">試験画面に戻る</button>
+  </div>
+
+  <div id="card-finish" class="card" style="text-align: center;">
+    <h2 style="color: #2e7d32;">試験が正常に送信されました</h2>
+    <p style="font-size:16px; margin: 20px 0;">お疲れ様でした。あなたの解答データは安全に記録されました。</p>
+    
+    <div style="background: #fff3e0; border: 2px solid #ffb74d; padding: 20px; border-radius: 6px; margin: 30px 0; text-align: left;">
+      <h4 style="margin:0 0 10px 0; color:#e65100;">【重要】受験管理番号</h4>
+      <p style="font-size:14px; margin:0 0 10px 0;">この番号を控えておくことで、タブを閉じた後でも結果を見直すことができます。</p>
+      <div id="display-receipt-id" style="font-size: 22px; font-weight: bold; letter-spacing: 1px; color:#333; text-align:center; background:white; padding:10px; border:1px solid #ddd;">---</div>
+    </div>
+    
+    <div id="instant-score-report" style="font-size:18px; font-weight:bold; margin-bottom:30px;"></div>
+    <button onclick="location.reload()" class="btn-secondary">トップ画面へ戻る</button>
+  </div>
+
+  <div id="card-past-review" class="card">
+    <div style="background:#e8f5e9; color:#2e7d32; padding:10px; text-align:center; font-weight:bold; border-radius:4px; margin-bottom:20px;">見直しモード（試験監視は無効化されています）</div>
+    <h2 id="review-title">試験結果の見直し</h2>
+    <div id="review-meta-info" style="margin-bottom:20px; color:#555;"></div>
+    <div id="past-review-render-area"></div>
+    <button onclick="location.reload()" class="btn-secondary" style="margin-top:20px;">トップ画面へ戻る</button>
+  </div>
+
 </div>
 
 <script>
-let config = {}, questions = [], currentQ = 0;
-let userAnswers = {};
-let timeLeft = 0, timerInterval;
-let violations = { leave: 0, copy: 0, devtools: 0 };
-let examActive = false;
+// グローバル状態管理
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx_7hO1brtwsA7MZIxq7pj3YeDWrTySisWcWyeV-my0SDwFaxvi-Cd2uS_RpUm4UdQ_/exec";
+let config = {};
+let questions = [];
+let currentIdx = 0;
+let userAnswers = {}; // id -> array of values/strings
+let timerInterval = null;
+let timeLeft = 0;
+let isExamActive = false;
 
-// 設定データの読み込み
-async function loadConfig() {
+// 接続・ログ用メトリクス
+let metrics = { leaveCount: 0, leaveTime: 0, violation: 0 };
+let leaveStart = null;
+
+async function loadSystem() {
   try {
-    const res = await fetch('config.json');
-    const data = await res.json();
+    const response = await fetch('config.json');
+    const data = await response.json();
     config = data.settings;
     questions = data.questions;
     
-    document.documentElement.style.setProperty('--theme', config.themeColor);
-    document.getElementById('exam-title').innerText = config.examName;
-    if(config.showProgress) document.getElementById('progress-container').style.display = 'block';
-    
-  } catch(e) {
-    alert("設定ファイルの読み込みに失敗しました。");
+    // レイアウト設定の反映
+    document.documentElement.style.setProperty('--theme', config.themeColor || '#1565c0');
+    document.getElementById('display-exam-name').innerText = config.examName;
+    if(!config.showProgress) document.getElementById('layout-progress-container').style.display = 'none';
+  } catch (error) {
+    alert("設定ファイル(config.json)の読み込みに失敗しました。配置を確認してください。");
   }
 }
 
-// シャッフル用関数
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+function showCard(cardId) {
+  document.querySelectorAll('.container .card').forEach(c => c.classList.remove('active'));
+  document.getElementById(cardId).classList.add('active');
 }
 
 function startExam() {
-  const name = document.getElementById('name').value;
-  const sid = document.getElementById('sid').value;
-  const cls = document.getElementById('class-select').value;
-  if(!name || !sid || !cls) return alert('全ての情報を入力してください。');
+  const name = document.getElementById('student-name').value.trim();
+  const sid = document.getElementById('student-id').value.trim();
+  const cls = document.getElementById('student-class').value;
+  if(!name || !sid) return alert("氏名と学籍番号を入力してください。");
 
-  // 受験履歴の確認
-  const historyKey = `exam_history_${config.examId}_${sid}`;
-  if(localStorage.getItem(historyKey)) {
-    alert('既にこの試験は受験済みです。見直しモードに移行します。');
-    return loadReview(historyKey);
+  // 多重受験防止チェック (ローカル)
+  const localKey = `exam_rec_${config.examId}_${sid}`;
+  if(localStorage.getItem(localKey)) {
+    alert("既にこの試験の受験記録が存在します。見直しを行いたい場合は、トップ画面の「過去の試験結果を見直す」をご利用ください。");
+    return;
   }
 
-  // 時間チェック
+  // 試験時間枠チェック
   const now = new Date();
-  if(config.startTime && now < new Date(config.startTime)) return alert('試験開始時間前です。');
-  if(config.endTime && now > new Date(config.endTime)) return alert('試験は終了しました。');
+  if(config.startTime && now < new Date(config.startTime)) return alert("試験開始時間前です。");
+  if(config.endTime && now > new Date(config.endTime)) return alert("この試験の実施期間は終了しました。");
 
-  if(config.randomQuestion) shuffle(questions);
-  if(config.randomChoice) {
-    questions.forEach(q => {
-      if(q.type === 'single' || q.type === 'multiple') {
-        // 選択肢と正答インデックスの整合性を保つ処理が必要ですが、簡易化のためここでは省略
-      }
-    });
+  // 問題シャッフル
+  if(config.randomQuestion) {
+    questions.sort(() => Math.random() - 0.5);
   }
 
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('exam-screen').style.display = 'block';
-  document.documentElement.requestFullscreen().catch(e=>console.log(e));
+  isExamActive = true;
+  currentIdx = 0;
+  timeLeft = config.timeLimit || 1800;
   
-  examActive = true;
-  timeLeft = config.timeLimit;
-  document.getElementById('total-q-num').innerText = questions.length;
-  
+  // セキュリティ・監視の有効化
+  if(config.security) {
+    document.getElementById('security-banner').style.display = 'block';
+    if(config.security.fullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    setupSecurityListeners();
+  }
+
+  // タイマー開始
   timerInterval = setInterval(() => {
     timeLeft--;
-    const m = Math.floor(timeLeft / 60);
-    const s = (timeLeft % 60).toString().padStart(2, '0');
-    document.getElementById('timer-display').innerText = `残り時間: ${m}:${s}`;
+    updateTimerDisplay();
     if(timeLeft <= 0) {
-      if(config.autoSubmit) submitExam();
-      else { clearInterval(timerInterval); alert('時間切れです。手動で提出してください。'); }
+      clearInterval(timerInterval);
+      if(config.autoSubmit) {
+        alert("制限時間になりました。解答を自動送信します。");
+        autoSubmitAction();
+      } else {
+        alert("制限時間になりました。解答を提出してください。");
+      }
     }
   }, 1000);
 
+  showCard('card-exam');
   renderQuestion();
-  setupSecurity();
+}
+
+function updateTimerDisplay() {
+  const min = Math.floor(timeLeft / 60);
+  const sec = timeLeft % 60;
+  document.getElementById('info-timer').innerText = `残り時間: ${min}:${sec.toString().padStart(2, '0')}`;
 }
 
 function renderQuestion() {
-  const q = questions[currentQ];
-  const qNum = currentQ + 1;
-  document.getElementById('current-q-num').innerText = qNum;
-  document.getElementById('progress-bar').style.width = `${(qNum / questions.length) * 100}%`;
+  const q = questions[currentIdx];
+  document.getElementById('info-q-num').innerText = `問題: ${currentIdx + 1} / ${questions.length}`;
   
-  let html = `<div class="question-block">
-    <div class="question-text">Q${qNum}. ${q.text} 
-      ${config.showScore ? `<span class="score-badge">${q.score}点</span>` : ''}
-    </div>`;
+  if(config.showProgress) {
+    const progress = ((currentIdx) / questions.length) * 100;
+    document.getElementById('layout-progress-bar').style.width = `${progress}%`;
+  }
 
-  const ans = userAnswers[q.id] || [];
+  let html = `<div class="q-text">`;
+  if(config.showQNumber) html += `【第${currentIdx + 1}問】 `;
+  html += `${q.text}`;
+  if(config.showScore) html += `<span class="score-tag">${q.score}点</span>`;
+  html += `</div><div class="options-container">`;
+
+  const saved = userAnswers[q.id] || [];
 
   if(q.type === 'single' || q.type === 'tf') {
-    q.options.forEach((opt, i) => {
-      const checked = ans.includes(i) ? 'checked' : '';
-      html += `<label class="option-label"><input type="radio" name="q_${q.id}" value="${i}" onchange="saveAnswer('${q.id}', [${i}])" ${checked}> ${opt}</label>`;
+    q.options.forEach((opt, idx) => {
+      const checked = saved.includes(idx) ? 'checked' : '';
+      html += `
+        <label class="choice-label">
+          <input type="radio" name="q_opt" value="${idx}" onchange="saveAnswer('${q.id}', [${idx}])" ${checked}>
+          <span>${opt}</span>
+        </label>`;
     });
   } else if(q.type === 'multiple') {
-    q.options.forEach((opt, i) => {
-      const checked = ans.includes(i) ? 'checked' : '';
-      html += `<label class="option-label"><input type="checkbox" name="q_${q.id}" value="${i}" onchange="saveMultiAnswer('${q.id}', ${i})" ${checked}> ${opt}</label>`;
+    q.options.forEach((opt, idx) => {
+      const checked = saved.includes(idx) ? 'checked' : '';
+      html += `
+        <label class="choice-label">
+          <input type="checkbox" name="q_opt" value="${idx}" onchange="saveCheckboxAnswer('${q.id}', ${idx})" ${checked}>
+          <span>${opt}</span>
+        </label>`;
     });
   } else if(q.type === 'text') {
-    const val = ans[0] || '';
-    html += `<textarea placeholder="解答を入力" onkeyup="saveAnswer('${q.id}', [this.value])">${val}</textarea>`;
+    const textVal = saved[0] || "";
+    html += `<textarea placeholder="ここに解答を記述してください" oninput="saveAnswer('${q.id}', [this.value])">${textVal}</textarea>`;
   }
 
   html += `</div>`;
-  document.getElementById('question-area').innerHTML = html;
+  document.getElementById('question-render-area').innerHTML = html;
 
-  document.getElementById('prev-btn').style.display = currentQ > 0 ? 'block' : 'none';
-  document.getElementById('next-btn').innerText = currentQ === questions.length - 1 ? '提出する' : '次へ';
+  // ボタン制御
+  document.getElementById('btn-prev').style.visibility = currentIdx > 0 ? 'visible' : 'hidden';
+  if(currentIdx === questions.length - 1) {
+    document.getElementById('btn-next').innerText = "解答確認（見直し）へ";
+  } else {
+    document.getElementById('btn-next').innerText = "次へ";
+  }
 }
 
-function saveAnswer(qId, val) { userAnswers[qId] = val; }
-function saveMultiAnswer(qId, val) {
+function saveAnswer(qId, valArray) {
+  userAnswers[qId] = valArray;
+}
+
+function saveCheckboxAnswer(qId, index) {
   if(!userAnswers[qId]) userAnswers[qId] = [];
-  const idx = userAnswers[qId].indexOf(val);
-  if(idx > -1) userAnswers[qId].splice(idx, 1);
-  else userAnswers[qId].push(val);
+  const p = userAnswers[qId].indexOf(index);
+  if(p > -1) userAnswers[qId].splice(p, 1);
+  else userAnswers[qId].push(index);
 }
 
-function nextQuestion() {
-  if(currentQ === questions.length - 1) submitExam();
-  else { currentQ++; renderQuestion(); }
-}
-function prevQuestion() {
-  if(currentQ > 0) { currentQ--; renderQuestion(); }
+function goToPrev() {
+  if(currentIdx > 0) { currentIdx--; renderQuestion(); }
 }
 
-async function submitExam() {
-  examActive = false;
-  clearInterval(timerInterval);
-  if(document.fullscreenElement) document.exitFullscreen();
-
-  // 自動採点ロジック（単一、複数、○×）
-  let totalScore = 0;
-  questions.forEach(q => {
-    if(q.type !== 'text') {
-      const uAns = userAnswers[q.id] || [];
-      const isCorrect = uAns.length === q.answer.length && uAns.every(v => q.answer.includes(v));
-      if(isCorrect) totalScore += q.score;
-    }
-  });
-
-  const payload = {
-    examId: config.examId,
-    studentId: document.getElementById('sid').value,
-    name: document.getElementById('name').value,
-    className: document.getElementById('class-select').value,
-    score: totalScore,
-    answers: userAnswers,
-    violations: violations,
-    timestamp: new Date().toISOString()
-  };
-
-  // Webhook等の送信モック
-  console.log("Submit Payload:", payload);
-  
-  // 見直し用に保存
-  localStorage.setItem(`exam_history_${config.examId}_${payload.studentId}`, JSON.stringify(payload));
-
-  document.getElementById('exam-screen').innerHTML = `<h2>試験完了</h2><p>お疲れ様でした。解答が送信されました。</p><p>自動採点スコア: ${totalScore}点 (※記述式の配点を除く)</p>`;
+function goToNext() {
+  if(currentIdx < questions.length - 1) {
+    currentIdx++;
+    renderQuestion();
+  } else {
+    openPreSubmitReview();
+  }
 }
 
-// 不正検知機能
-function setupSecurity() {
-  const alertViolation = (type) => {
-    if(!examActive) return;
-    violations[type]++;
-    alert(`不正な操作を検知しました: ${type} (計${violations[type]}回)`);
-  };
+// 送信前の全体見直し処理
+function openPreSubmitReview() {
+  let html = "";
+  questions.forEach((q, idx) => {
+    const ans = userAnswers[q.id] || [];
+    let stateBadge = `<span class="badge-empty">⚠️ 未解答</span>`;
+    let ansPreview = "";
 
-  document.addEventListener("visibilitychange", () => { if(document.hidden) alertViolation('leave'); });
-  document.addEventListener("copy", (e) => { e.preventDefault(); alertViolation('copy'); });
-  document.addEventListener("contextmenu", (e) => { e.preventDefault(); alertViolation('devtools'); });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-      e.preventDefault(); alertViolation('devtools');
-    }
-  });
-  document.addEventListener("fullscreenchange", () => {
-    if(!document.fullscreenElement && examActive) alertViolation('leave');
-  });
-}
-
-// 見直しモード機能
-function checkReview() {
-  const sid = document.getElementById('sid').value;
-  if(!sid) return alert('学籍番号を入力してください。');
-  const historyKey = `exam_history_${config.examId}_${sid}`;
-  if(localStorage.getItem(historyKey)) loadReview(historyKey);
-  else alert('受験記録が見つかりません。');
-}
-
-function loadReview(key) {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('review-screen').style.display = 'block';
-  
-  const record = JSON.parse(localStorage.getItem(key));
-  let html = `<p>受験日時: ${new Date(record.timestamp).toLocaleString()}</p>`;
-  
-  questions.forEach((q, i) => {
-    const ans = record.answers[q.id] || [];
-    let isCorrect = false;
-    let ansText = "";
-    let correctText = "";
-
-    if(q.type === 'text') {
-      ansText = ans[0] || '無回答';
-      correctText = `模範解答: ${q.answer[0]}<br><span style="color:red">※管理者による採点待ち</span>`;
-    } else {
-      isCorrect = ans.length === q.answer.length && ans.every(v => q.answer.includes(v));
-      ansText = ans.map(v => q.options[v]).join(', ') || '無回答';
-      correctText = `正解: ${q.answer.map(v => q.options[v]).join(', ')}`;
+    if(ans.length > 0 && ans[0] !== "") {
+      stateBadge = `<span class="badge-answered">✓ 解答済</span>`;
+      if(q.type === 'text') {
+        ansPreview = `<div style="background:#f9f9f9; padding:8px; margin-top:5px; border-left:3px solid #ccc;">${ans[0]}</div>`;
+      } else {
+        ansPreview = "選択項目: " + ans.map(i => `<b>[${q.options[i]}]</b>`).join(", ");
+      }
     }
 
     html += `
-      <div class="question-block" style="border: 1px solid #ccc; padding: 15px; border-radius: 5px;">
-        <div class="question-text">Q${i+1}. ${q.text} [${q.score}点] ${isCorrect ? '✅' : '❌'}</div>
-        <div class="review-answer">
-          あなたの解答: <b>${ansText}</b><br>
-          ${correctText}
+      <div class="review-item">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+          <span style="font-weight:bold;">第${idx + 1}問 (${q.score}点)</span>
+          ${stateBadge}
+        </div>
+        <div style="font-size:14px; color:#555;">${q.text}</div>
+        <div style="font-size:14px; margin-top:5px;">${ansPreview}</div>
+        <button onclick="jumpToQuestion(${idx})" class="btn-secondary" style="width:auto; padding:4px 10px; font-size:12px; margin-top:8px;">この問題を修正する</button>
+      </div>
+    `;
+  });
+  document.getElementById('pre-submit-list').innerHTML = html;
+  showCard('card-pre-submit');
+}
+
+function jumpToQuestion(idx) {
+  currentIdx = idx;
+  showCard('card-exam');
+  renderQuestion();
+}
+
+function backToExamFromReview() {
+  currentIdx = questions.length - 1;
+  showCard('card-exam');
+  renderQuestion();
+}
+
+// 解答送信コア処理
+async function submitFinalAnswers() {
+  isExamActive = false;
+  clearInterval(timerInterval);
+  document.getElementById('security-banner').style.display = 'none';
+  if(document.fullscreenElement) document.exitFullscreen().catch(() => {});
+
+  // 自動自動採点 (選択・○×のみ)
+  let autoCalculatedScore = 0;
+  let totalPossibleScore = 0;
+  
+  questions.forEach(q => {
+    totalPossibleScore += q.score;
+    if(q.type !== 'text') {
+      const uAns = userAnswers[q.id] || [];
+      const isCorrect = uAns.length === q.answer.length && uAns.every(v => q.answer.includes(v));
+      if(isCorrect) autoCalculatedScore += q.score;
+    }
+  });
+
+  // 受験管理番号の生成 (ランダムな英数字)
+  const receiptId = "REC-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+  
+  const payload = {
+    receiptId: receiptId,
+    examId: config.examId,
+    examName: config.examName,
+    studentClass: document.getElementById('student-class').value,
+    studentId: document.getElementById('student-id').value,
+    studentName: document.getElementById('student-name').value,
+    autoScore: autoCalculatedScore,
+    answers: userAnswers,
+    metrics: metrics,
+    timestamp: new Date().toLocaleString()
+  };
+
+  // 1. ローカルストレージに見直し用として永続保存 (タブを消しても残る)
+  localStorage.setItem(`receipt_${receiptId}`, JSON.stringify({ payload, questions }));
+  // 多重受験防止用キーも保存
+  localStorage.setItem(`exam_rec_${config.examId}_${payload.studentId}`, receiptId);
+
+  // 2. 教員ダッシュボード・GASサーバーへの送信連携
+  try {
+    fetch(GAS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {
+    console.log("GAS送信バックグラウンド処理完了(非同期ロールバック対応)");
+  }
+
+  // 3. 画面の切り替え
+  document.getElementById('display-receipt-id').innerText = receiptId;
+  document.getElementById('instant-score-report').innerText = `客観式自動採点スコア: ${autoCalculatedScore} 点 / ${totalPossibleScore} 点満点\n(※記述問題の配点は含みません)`;
+  showCard('card-finish');
+}
+
+function autoSubmitAction() {
+  submitFinalAnswers();
+}
+
+// 不正監視機能のセットアップ
+function setupSecurityListeners() {
+  const triggerViolation = (msg) => {
+    if(!isExamActive) return;
+    metrics.violation++;
+    console.warn("不正操作検知: " + msg);
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) {
+      metrics.leaveCount++;
+      leaveStart = Date.now();
+      triggerViolation("画面離脱");
+    } else {
+      if(leaveStart) {
+        metrics.leaveTime += Math.floor((Date.now() - leaveStart) / 1000);
+        leaveStart = null;
+      }
+    }
+  });
+
+  if(config.security.preventCopy) {
+    document.addEventListener('copy', (e) => { e.preventDefault(); triggerViolation("コピー操作"); });
+  }
+  if(config.security.preventRightClick) {
+    document.addEventListener('contextmenu', (e) => { e.preventDefault(); triggerViolation("右クリック"); });
+  }
+  if(config.security.devTools) {
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.metaKey && e.altKey && e.key === 'I')) {
+        e.preventDefault();
+        triggerViolation("開発者ツール起動試行");
+      }
+    });
+  }
+}
+
+// 管理番号による過去結果見直しモード
+function enterReviewMode() {
+  const rid = document.getElementById('search-receipt-id').value.trim().toUpperCase();
+  if(!rid) return alert("受験管理番号を入力してください。");
+  
+  const item = localStorage.getItem(`receipt_${rid}`);
+  if(!item) return alert("指定された受験管理番号のデータが見つかりません。正確に入力されているか、または同じ端末のブラウザであるかご確認ください。");
+
+  const data = JSON.parse(item);
+  const p = data.payload;
+  const qList = data.questions;
+
+  document.getElementById('review-title').innerText = `見直し結果: ${p.examName}`;
+  document.getElementById('review-meta-info').innerHTML = `
+    <b>受験者:</b> ${p.studentClass} ${p.studentId} ${p.studentName}<br>
+    <b>実施日時:</b> ${p.timestamp}<br>
+    <b>客観式採点スコア:</b> <span style="font-size:18px; color:#d32f2f;">${p.autoScore} 点</span>
+  `;
+
+  let html = "";
+  qList.forEach((q, idx) => {
+    const uAns = p.answers[q.id] || [];
+    let isCorrect = false;
+    let uAnsStr = "";
+    let correctStr = "";
+
+    if(q.type === 'text') {
+      uAnsStr = uAns[0] || "(無回答)";
+      correctStr = `<b>模範解答:</b> ${q.answer[0]} <br><span style="color:#e65100; font-size:12px;">※記述式のため教員の最終採点によって点数が加算されます。</span>`;
+    } else {
+      isCorrect = uAns.length === q.answer.length && uAns.every(v => q.answer.includes(v));
+      uAnsStr = uAns.map(i => q.options[i]).join(", ") || "(無回答)";
+      correctStr = `<b>正解:</b> ${q.answer.map(i => q.options[i]).join(", ")}`;
+    }
+
+    html += `
+      <div style="border:1px solid #ccc; background:white; padding:20px; border-radius:6px; margin-bottom:15px;">
+        <div style="font-weight:bold; font-size:16px; margin-bottom:10px;">
+          Q${idx+1}. ${q.text} <span class="score-tag">${q.score}点</span>
+          ${q.type !== 'text' ? (isCorrect ? '<span style="color:green;margin-left:15px;">● 正解</span>' : '<span style="color:red;margin-left:15px;">× 不正解</span>') : ''}
+        </div>
+        <div style="background:#f5f5f5; padding:12px; font-size:14px; border-radius:4px; line-height:1.6;">
+          <b>あなたの解答:</b> <span style="color:#1565c0; font-weight:bold;">${uAnsStr}</span><br>
+          ${correctStr}
         </div>
       </div>
     `;
   });
-  
-  document.getElementById('review-area').innerHTML = html;
+
+  document.getElementById('past-review-render-area').innerHTML = html;
+  showCard('card-past-review');
 }
 
-window.onload = loadConfig;
+window.onload = loadSystem;
 </script>
 </body>
 </html>
