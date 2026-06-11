@@ -120,7 +120,7 @@
   .section-header h3 { margin: 0 0 4px 0; color: var(--theme-dark); font-size: 17px; }
   .section-header p { margin: 0; font-size: 13px; color: #475569; }
 
-  /* 問題タイトル */
+  /* 問題タイトル（説明テキスト付き） */
   .q-block { margin-bottom: 30px; }
   .q-block .q-number { font-size: 12px; font-weight: bold; color: var(--theme); text-transform: uppercase; margin-bottom: 4px; }
   .q-block .q-text { font-size: 17px; font-weight: bold; line-height: 1.6; color: #1e293b; }
@@ -161,6 +161,9 @@
   }
   .receipt-box h4 { margin: 0 0 8px 0; color: #c2410c; }
   .receipt-id { font-size: 24px; font-weight: bold; letter-spacing: 2px; text-align: center; background: white; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px; }
+
+  .score-display { font-size: 48px; font-weight: 900; color: var(--theme); text-align: center; line-height: 1; }
+  .score-label { text-align: center; color: #64748b; font-size: 13px; margin-top: 4px; }
 
   /* 見直しモード */
   .review-mode-banner { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 10px; text-align: center; font-weight: bold; border-radius: 6px; margin-bottom: 20px; }
@@ -246,16 +249,16 @@
   </div>
 
   <div id="card-finish" class="card" style="text-align:center;">
-    <div style="font-size:48px; margin-bottom:8px;">🚀</div>
-    <h2 style="color:#059669;">試験データを送信中...</h2>
-    <p style="color:#475569;">サーバーへの安全な記録処理を行っています。画面を閉じずにお待ちください。</p>
+    <div style="font-size:48px; margin-bottom:8px;">✅</div>
+    <h2 style="color:#059669;">試験を送信しました</h2>
+    <p style="color:#475569;">お疲れ様でした。解答データは安全に記録されました。</p>
     <div class="receipt-box">
       <h4>【重要】受験管理番号</h4>
       <p style="font-size:13px; margin:0 0 4px 0;">この番号を控えておくと、後から解答を見直せます。</p>
-      <div class="receipt-id" id="display-receipt-id">送信中...</div>
+      <div class="receipt-id" id="display-receipt-id">---</div>
     </div>
     <div id="instant-score-report" style="margin:24px 0;"></div>
-    <button class="btn-sub" id="btn-finish-reload" onclick="location.reload()" style="display:none;">トップ画面へ戻る</button>
+    <button class="btn-sub" onclick="location.reload()">トップ画面へ戻る</button>
   </div>
 
   <div id="card-past-review" class="card">
@@ -266,17 +269,15 @@
     <button class="btn-sub" onclick="location.reload()" style="margin-top:20px;">トップ画面へ戻る</button>
   </div>
 
-</div>
-
-<script>
+</div><script>
 // ============================================================
-// グローバル設定 (GAS_URLを必ずご自身の環境に書き換えてください)
+// グローバル状態
 // ============================================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwr45Ncll1eJJBwqS2NhwyjfGotMdY9w0V8Z_orBUwXbgRKx-8RAMXhkzTEwoGIC94VBg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx_REPLACE_WITH_YOUR_GAS_URL/exec";
 
 let config = {};
-let questions = []; 
-let questionItems = []; 
+let questions = []; // セクション含む全アイテム (type: section / question)
+let questionItems = []; // 問題のみ（indexingに使用）
 let currentIdx = 0;
 let userAnswers = {};
 let timerInterval = null;
@@ -287,6 +288,9 @@ let metrics = { leaveCount: 0, leaveTime: 0, violation: 0 };
 let leaveOverlayActive = false;
 let studentInfo = {};
 
+// ============================================================
+// システム起動
+// ============================================================
 async function loadSystem() {
   try {
     const res = await fetch('config.json');
@@ -299,11 +303,63 @@ async function loadSystem() {
     if(!config.showProgress) document.getElementById('progress-wrap').style.display = 'none';
 
     questionItems = questions.filter(q => q.type !== 'section');
+
+    // 解答中データの一時保存からの復元チェック
+    checkAndRestoreProgress();
+
   } catch(e) {
-    alert("設定ファイル(config.json)の読み込みに失敗しました。");
+    alert("設定ファイル(config.json)の読み込みに失敗しました。\n同じフォルダにconfig.jsonを配置してください。");
   }
 }
 
+// ============================================================
+// 解答中データの一時保存・復元ロジック
+// ============================================================
+function saveTempProgress() {
+  if (!isExamActive) return;
+  const progress = {
+    studentInfo,
+    userAnswers,
+    currentIdx,
+    timeLeft,
+    metrics
+  };
+  localStorage.setItem(`exam_temp_progress_${config.examId || 'default'}`, JSON.stringify(progress));
+}
+
+function checkAndRestoreProgress() {
+  const saved = localStorage.getItem(`exam_temp_progress_${config.examId || 'default'}`);
+  if (saved) {
+    const progress = JSON.parse(saved);
+    if (confirm("未提出の試験回答データが見つかりました。データを復元して途中の状態から試験を再開しますか？")) {
+      studentInfo = progress.studentInfo || {};
+      userAnswers = progress.userAnswers || {};
+      currentIdx = progress.currentIdx || 0;
+      timeLeft = progress.timeLeft || 1800;
+      metrics = progress.metrics || { leaveCount: 0, leaveTime: 0, violation: 0 };
+      
+      // ログインフォームに値を差し戻す
+      if (studentInfo.grade) {
+        document.getElementById('grade-select').value = studentInfo.grade;
+        updateClassSelect();
+        if (studentInfo.cls) document.getElementById('class-select').value = studentInfo.cls;
+      }
+      if (studentInfo.sid) document.getElementById('student-id').value = studentInfo.sid;
+      if (studentInfo.name) document.getElementById('student-name').value = studentInfo.name;
+
+      isExamActive = true;
+      document.getElementById('exam-header-bar').style.display = 'block';
+      setupSecurityListeners();
+      startTimer();
+      showCard('card-exam');
+      renderQuestion();
+    }
+  }
+}
+
+// ============================================================
+// クラス選択
+// ============================================================
 function updateClassSelect() {
   const gradeVal = document.getElementById('grade-select').value;
   const classSelect = document.getElementById('class-select');
@@ -318,6 +374,9 @@ function updateClassSelect() {
   }
 }
 
+// ============================================================
+// 試験開始
+// ============================================================
 function startExam() {
   const grade = document.getElementById('grade-select').value;
   const cls   = document.getElementById('class-select').value;
@@ -328,27 +387,17 @@ function startExam() {
   if(!sid) return alert("学籍番号を入力してください。");
   if(!name) return alert("氏名を入力してください。");
 
-  // 教員側でのデータリセットに対応するため、完全ブロックから上書き警告に変更
   const localKey = `exam_rec_${config.examId}_${sid}`;
   if(localStorage.getItem(localKey)) {
-    if(!confirm("この端末にすでに同一の学籍番号で受験した記録が残っています。\n教員から再受験の指示があり、新しく上書き提出を始める場合は『OK』を押してください。")) {
-      return;
-    }
+    alert("この試験の受験記録がすでに存在します。\n見直しは「過去の試験結果を確認する」からどうぞ。");
+    return;
   }
+
+  const now = new Date();
+  if(config.startTime && now < new Date(config.startTime)) return alert("試験開始時間前です。");
+  if(config.endTime   && now > new Date(config.endTime))   return alert("この試験の実施期間は終了しました。");
 
   studentInfo = { grade, cls, sid, name };
-
-  // 【機能追加】前回の途中保存データがある場合は自動復元
-  const savedProgress = localStorage.getItem(`exam_progress_${config.examId}_${sid}`);
-  if(savedProgress) {
-    if(confirm("以前の未提出の回答データ（途中保存）が見つかりました。続きから再開しますか？")) {
-      userAnswers = JSON.parse(savedProgress);
-    } else {
-      userAnswers = {};
-    }
-  } else {
-    userAnswers = {};
-  }
 
   if(config.randomQuestion) {
     const sections = questions.filter(q => q.type === 'section');
@@ -361,8 +410,10 @@ function startExam() {
   currentIdx = 0;
   timeLeft = config.timeLimit || 1800;
 
+  // ヘッダー表示
   document.getElementById('exam-header-bar').style.display = 'block';
 
+  // フルスクリーン試行
   if(config.security && config.security.fullscreen) {
     requestFullscreenSilent();
   }
@@ -371,6 +422,7 @@ function startExam() {
   startTimer();
   showCard('card-exam');
   renderQuestion();
+  saveTempProgress(); // 開始時点で一回保存
 }
 
 function requestFullscreenSilent() {
@@ -379,11 +431,20 @@ function requestFullscreenSilent() {
   if(req) req.call(el).catch(() => {});
 }
 
+// ============================================================
+// タイマー
+// ============================================================
 function startTimer() {
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     timeLeft--;
     updateTimerDisplay();
+    
+    // 5秒ごとにタイマー進行状況をローカルストレージに同期保存
+    if (timeLeft % 5 === 0) {
+      saveTempProgress();
+    }
+
     if(timeLeft <= 0) {
       clearInterval(timerInterval);
       if(config.autoSubmit) {
@@ -404,15 +465,20 @@ function updateTimerDisplay() {
   el.style.color = timeLeft < 300 ? '#dc2626' : (timeLeft < 600 ? '#d97706' : '#334155');
 }
 
+// ============================================================
+// 問題レンダリング（セクション対応・一覧表示）
+// ============================================================
 function renderQuestion() {
   const q = questionItems[currentIdx];
   if(!q) return;
 
+  // 進捗バー（セクション無視）
   const pct = ((currentIdx + 1) / questionItems.length) * 100;
   document.getElementById('layout-progress-bar').style.width = pct + '%';
   document.getElementById('info-q-num').innerText = `問題 ${currentIdx + 1} / ${questionItems.length}`;
   document.getElementById('info-violations').innerText = metrics.leaveCount > 0 ? `離脱: ${metrics.leaveCount}回 (${metrics.leaveTime}秒)` : '';
 
+  // セクション区切りを前に表示
   let sectionHtml = '';
   const qOrigIdx = questions.indexOf(q);
   let prevSection = null;
@@ -472,6 +538,8 @@ function renderQuestion() {
     choiceHtml = `<textarea id="text-ans-${q.id}" placeholder="解答を入力してください..." onchange="saveTextAnswer('${q.id}', this.value)">${escapeHtml(savedText)}</textarea>`;
   }
 
+  // 配点未設定時はデフォルト1点にする
+  const currentScore = (q.score !== undefined && q.score !== null && q.score !== '') ? q.score : 1;
   const diffClass = `diff-${q.difficulty || '普'}`;
   const html = `
     ${sectionHtml}
@@ -479,7 +547,7 @@ function renderQuestion() {
       <div class="q-number">問題 ${currentIdx + 1}</div>
       <div class="q-text">
         ${escapeHtml(q.text)}
-        <span class="score-badge">${q.score}点</span>
+        <span class="score-badge">${currentScore}点</span>
         <span class="diff-badge ${diffClass}">${q.difficulty || '普'}</span>
       </div>
       ${q.description ? `<div class="q-desc">${escapeHtml(q.description)}</div>` : ''}
@@ -488,13 +556,16 @@ function renderQuestion() {
   `;
   document.getElementById('question-render-area').innerHTML = html;
 
+  // ナビボタン
   document.getElementById('btn-prev').style.visibility = currentIdx === 0 ? 'hidden' : 'visible';
   const isLast = currentIdx === questionItems.length - 1;
   document.getElementById('btn-next').innerText = isLast ? '確認・提出画面へ →' : '次へ →';
   document.getElementById('btn-next').style.background = isLast ? '#059669' : 'var(--theme)';
 }
 
-// 【機能追加】1問ごとの変更イベント時に即時途中ローカル保存
+// ============================================================
+// 解答保存
+// ============================================================
 function saveAnswer(qId, type, idx, checked) {
   if(type === 'single') {
     userAnswers[qId] = [idx];
@@ -504,27 +575,23 @@ function saveAnswer(qId, type, idx, checked) {
     else arr = arr.filter(v => v !== idx);
     userAnswers[qId] = arr;
   }
-  saveProgressLocal();
+  saveTempProgress(); // リアルタイム保存
 }
-
 function saveTextAnswer(qId, val) {
   userAnswers[qId] = [val];
-  saveProgressLocal();
+  saveTempProgress(); // リアルタイム保存
 }
 
-function saveProgressLocal() {
-  if(studentInfo && studentInfo.sid) {
-    localStorage.setItem(`exam_progress_${config.examId}_${studentInfo.sid}`, JSON.stringify(userAnswers));
-  }
-}
-
+// ============================================================
+// ナビゲーション
+// ============================================================
 function goToNext() {
   const q = questionItems[currentIdx];
   if(q && q.type === 'text') {
     const ta = document.getElementById(`text-ans-${q.id}`);
     if(ta) userAnswers[q.id] = [ta.value];
   }
-  saveProgressLocal();
+  saveTempProgress();
   if(currentIdx < questionItems.length - 1) {
     currentIdx++;
     renderQuestion();
@@ -533,14 +600,13 @@ function goToNext() {
     showPreSubmit();
   }
 }
-
 function goToPrev() {
   const q = questionItems[currentIdx];
   if(q && q.type === 'text') {
     const ta = document.getElementById(`text-ans-${q.id}`);
     if(ta) userAnswers[q.id] = [ta.value];
   }
-  saveProgressLocal();
+  saveTempProgress();
   if(currentIdx > 0) {
     currentIdx--;
     renderQuestion();
@@ -548,9 +614,14 @@ function goToPrev() {
   }
 }
 
+// ============================================================
+// 提出確認画面
+// ============================================================
 function showPreSubmit() {
   let html = '';
   questionItems.forEach((q, idx) => {
+    // 配点未設定時はデフォルト1点にする
+    const currentScore = (q.score !== undefined && q.score !== null && q.score !== '') ? q.score : 1;
     const ans = userAnswers[q.id] || [];
     const answered = ans.length > 0 && (q.type !== 'text' || ans[0] !== '');
     let ansPreview = '';
@@ -561,7 +632,7 @@ function showPreSubmit() {
     html += `
       <div class="review-item">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-weight:bold;color:#334155;">第${idx+1}問 (${q.score}点)</span>
+          <span style="font-weight:bold;color:#334155;">第${idx+1}問 (${currentScore}点)</span>
           ${answered ? '<span class="badge-answered">✓ 解答済</span>' : '<span class="badge-empty">⚠ 未解答</span>'}
         </div>
         <div style="font-size:14px;color:#475569;">${escapeHtml(q.text)}</div>
@@ -585,7 +656,7 @@ function backToExamFromReview() {
 }
 
 // ============================================================
-// 【バグ修正】非同期処理待機＆プレフライト回避型・最終提出
+// 最終提出
 // ============================================================
 async function submitFinalAnswers() {
   isExamActive = false;
@@ -597,11 +668,13 @@ async function submitFinalAnswers() {
 
   let autoScore = 0, totalScore = 0;
   questionItems.forEach(q => {
-    totalScore += q.score;
+    // 配点未設定時はデフォルト1点にする
+    const currentScore = (q.score !== undefined && q.score !== null && q.score !== '') ? Number(q.score) : 1;
+    totalScore += currentScore;
     if(q.type !== 'text') {
       const ua = userAnswers[q.id] || [];
       const ok = ua.length === q.answer.length && ua.every(v => q.answer.includes(v));
-      if(ok) autoScore += q.score;
+      if(ok) autoScore += currentScore;
     }
   });
 
@@ -614,61 +687,34 @@ async function submitFinalAnswers() {
     timestamp: new Date().toLocaleString('ja-JP')
   };
 
-  // 永続化ストレージへ最終確定記録
   localStorage.setItem(`receipt_${receiptId}`, JSON.stringify({ payload, questions: questionItems }));
   localStorage.setItem(`exam_rec_${config.examId}_${studentInfo.sid}`, receiptId);
-  
-  // 提出が成功するため、一時保存キャッシュは破棄
-  localStorage.removeItem(`exam_progress_${config.examId}_${studentInfo.sid}`);
 
-  showCard('card-finish');
+  // 送信が完了したため、クライアント端末の一時保存用解答データを削除
+  localStorage.removeItem(`exam_temp_progress_${config.examId || 'default'}`);
 
-  // インスタントスコア表示の土台構築
+  try {
+    fetch(GAS_URL, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+  } catch(e) {}
+
+  document.getElementById('display-receipt-id').innerText = receiptId;
   document.getElementById('instant-score-report').innerHTML = `
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px;border-radius:8px;">
       <div style="font-size:13px;color:#166534;margin-bottom:8px;">客観式（自動採点）スコア</div>
       <div style="font-size:40px;font-weight:900;color:#059669;">${autoScore} <span style="font-size:16px;color:#475569;">/ ${totalScore} 点</span></div>
       <div style="font-size:12px;color:#475569;margin-top:6px;">※ 記述式問題の採点は含まれません</div>
     </div>`;
-
-  try {
-    // プレフライト(OPTIONSリクエスト)を発生させず、かつ送信を確実に待機させるための修正
-    await fetch(GAS_URL, { 
-      method: "POST", 
-      headers: { "Content-Type": "text/plain" }, 
-      body: JSON.stringify(payload) 
-    });
-    
-    // 送信完了時に表示を切り替え
-    document.getElementById('card-finish').querySelector('h2').innerText = "試験を送信しました";
-    document.getElementById('card-finish').querySelector('p').innerText = "お疲れ様でした。解答データは安全に送信・記録されました。";
-    document.getElementById('display-receipt-id').innerText = receiptId;
-    document.getElementById('btn-finish-reload').style.display = "inline-block";
-  } catch(e) {
-    console.error("GAS Submission Error:", e);
-    // オフライン状態等でのデータ消失を防ぐ警告表示
-    document.getElementById('card-finish').querySelector('h2').innerText = "⚠️ サーバー送信保留中";
-    document.getElementById('card-finish').querySelector('p').innerText = "通信環境エラーにより同期が保留されましたが、端末内には安全に記録されています。画面に表示されている『受験管理番号』を必ず控えて、教員に提示してください。";
-    document.getElementById('display-receipt-id').innerText = receiptId;
-    document.getElementById('btn-finish-reload').style.display = "inline-block";
-  }
+  showCard('card-finish');
 }
 
+// ============================================================
+// セキュリティ監視
+// ============================================================
 function setupSecurityListeners() {
   document.addEventListener('visibilitychange', onVisibilityChange);
 
   if(config.security && config.security.preventCopy) {
-    document.addEventListener('copy', e => { 
-      e.preventDefault(); 
-      if(e.clipboardData) e.clipboardData.setData('text/plain', 'コピーは禁止されています。');
-      recordViolation("コピー操作"); 
-    });
-    // 【不正検知強化】カンニングを強力に防止するため貼り付け(ペースト)を禁止
-    document.addEventListener('paste', e => {
-      e.preventDefault();
-      recordViolation("ペースト操作試行");
-      alert("外部テキストの貼り付け(ペースト)操作は禁止されています。");
-    });
+    document.addEventListener('copy', e => { e.preventDefault(); recordViolation("コピー操作"); });
   }
   if(config.security && config.security.preventRightClick) {
     document.addEventListener('contextmenu', e => { e.preventDefault(); recordViolation("右クリック"); });
@@ -695,12 +741,14 @@ function onVisibilityChange() {
     metrics.leaveCount++;
     recordViolation("画面離脱");
     showLeaveOverlay();
+    saveTempProgress(); // 離脱回数を即保存
   } else {
     if(leaveStart) {
       const sec = Math.floor((Date.now() - leaveStart) / 1000);
       metrics.leaveTime += sec;
       leaveStart = null;
       updateLeaveOverlayMeta();
+      saveTempProgress(); // 離脱時間を同期保存
     }
   }
 }
@@ -729,13 +777,13 @@ function recordViolation(msg) {
 }
 
 // ============================================================
-// 【機能追加】見直しモードでの詳細フィードバック(解説)表示
+// 見直しモード
 // ============================================================
 function enterReviewMode() {
   const rid = document.getElementById('search-receipt-id').value.trim().toUpperCase();
   if(!rid) return alert("受験管理番号を入力してください。");
   const item = localStorage.getItem(`receipt_${rid}`);
-  if(!item) return alert("該当データが見つかりません。\n受験時と同じ端末・ブラウザで入力してください。");
+  if(!item) return alert("該当データが見つかりません。\n同じ端末・ブラウザで入力してください。");
 
   const data = JSON.parse(item);
   const p = data.payload;
@@ -745,39 +793,33 @@ function enterReviewMode() {
   document.getElementById('review-meta-info').innerHTML = `
     <b>受験者:</b> ${escapeHtml(p.studentClass)} ${escapeHtml(p.studentId)} ${escapeHtml(p.studentName)}<br>
     <b>実施日時:</b> ${p.timestamp}<br>
-    <b>客観式スコア:</b> <span style="font-size:18px;color:#059669;font-weight:bold;">${p.autoScore} 点</span>
+    <b>客観式スコア:</b> <span style="font-size:18px;color:#dc2626;font-weight:bold;">${p.autoScore} 点</span>
   `;
 
   let html = '';
   qList.forEach((q, idx) => {
+    // 配点未設定時はデフォルト1点にする
+    const currentScore = (q.score !== undefined && q.score !== null && q.score !== '') ? q.score : 1;
     const ua = p.answers[q.id] || [];
     let isOk = false, uStr = '', correctStr = '';
     if(q.type === 'text') {
       uStr = ua[0] || '(無回答)';
-      correctStr = `<b>模範解答:</b> ${escapeHtml(q.answer[0])}<br><span style="font-size:12px;color:#e65100;">※教員による最終手動採点対象の問題です。</span>`;
+      correctStr = `<b>模範解答:</b> ${escapeHtml(q.answer[0])}<br><span style="font-size:12px;color:#e65100;">※教員が最終採点を行います。</span>`;
     } else {
       isOk = ua.length === q.answer.length && ua.every(v => q.answer.includes(v));
       uStr = ua.map(i => q.options[i]).join('、') || '(無回答)';
       correctStr = `<b>正解:</b> ${q.answer.map(i => q.options[i]).join('、')}`;
     }
-
-    // クエストに解説(explanation)が設定されている場合は組み立て
-    let explanationHtml = '';
-    if(q.explanation) {
-      explanationHtml = `<div style="margin-top:10px; padding:10px; background:#fff8e1; border-left:4px solid #ffb300; border-radius:4px; font-size:13px; color:#5d4037;"><b>💡 問題解説:</b> ${escapeHtml(q.explanation)}</div>`;
-    }
-
     html += `
       <div style="border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin-bottom:12px;background:white;">
         <div style="font-weight:bold;font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
           Q${idx+1}. ${escapeHtml(q.text)}
-          <span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:10px;font-size:12px;">${q.score}点</span>
+          <span style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:10px;font-size:12px;">${currentScore}点</span>
           ${q.type !== 'text' ? (isOk ? '<span style="color:#059669;">● 正解</span>' : '<span style="color:#dc2626;">✕ 不正解</span>') : ''}
         </div>
         <div style="background:#f8fafc;padding:12px;border-radius:6px;font-size:14px;line-height:1.7;">
           <b>あなたの回答:</b> <span style="color:var(--theme);font-weight:bold;">${escapeHtml(uStr)}</span><br>
           ${correctStr}
-          ${explanationHtml}
         </div>
       </div>`;
   });
@@ -785,6 +827,9 @@ function enterReviewMode() {
   showCard('card-past-review');
 }
 
+// ============================================================
+// ユーティリティ
+// ============================================================
 function showCard(id) {
   document.querySelectorAll('#main-container .card').forEach(c => c.classList.remove('active'));
   document.getElementById(id).classList.add('active');
