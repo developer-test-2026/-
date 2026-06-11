@@ -24,7 +24,7 @@ th,td{border:1px solid #ccc;padding:8px;text-align:center;}
 
 <script>
 const PASSWORD = "admin ishikariminami 2026";
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/1NpHCOwH60GncxJo0cgw3SurnItWMiQBSykT4iD8vuj8/pub?output=csv";
 let csvData = "";
 
 function login(){
@@ -36,7 +36,7 @@ function login(){
 }
 
 async function load(){
-  const res = await fetch(SHEET_URL);
+  const res = await fetch(https://script.google.com/macros/s/AKfycbx_7hO1brtwsA7MZIxq7pj3YeDWrTySisWcWyeV-my0SDwFaxvi-Cd2uS_RpUm4UdQ_/exec);
   csvData = await res.text();
   const rows = csvData.trim().split("\n");
   let html = `<table><tr><th>名前</th><th>学籍番号</th><th>点数</th><th>離脱回数</th><th>離脱時間</th><th>不正</th></tr>`;
