@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>問題作成エディタ</title>
+<style>
+  body{font-family:sans-serif; background:#f4f4f9; padding:20px;}
+  .container{max-width:900px; margin:0 auto; background:white; padding:20px; border-radius:8px;}
+  .section{margin-bottom:30px; padding:15px; border:1px solid #ddd; border-radius:5px;}
+  h2{border-bottom:2px solid #2196f3; padding-bottom:5px; color:#333;}
+  .form-group{display:flex; margin-bottom:10px; align-items:center;}
+  .form-group label{width:150px; font-weight:bold;}
+  input, select, textarea{flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;}
+  .btn{background:#2196f3; color:white; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; margin-top:5px;}
+  .btn-danger{background:#f44336;}
+  .btn-success{background:#4caf50;}
+  .q-block{background:#fafafa; border:1px solid #ccc; padding:15px; margin-bottom:15px; position:relative;}
+  .q-delete{position:absolute; right:15px; top:15px; background:#f44336; color:white; border:none; padding:5px; cursor:pointer;}
+  .opt-row{display:flex; gap:10px; margin-bottom:5px; align-items:center;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>試験・問題設定エディタ</h1>
+  <p>作成したデータはJSONまたはCSVでエクスポートし、システムに適用します。</p>
+
+  <div class="section">
+    <h2>試験全体設定</h2>
+    <div class="form-group"><label>試験名</label><input type="text" id="exam-name" value="新しい試験"></div>
+    <div class="form-group"><label>開始日時</label><input type="datetime-local" id="start-time"></div>
+    <div class="form-group"><label>終了日時</label><input type="datetime-local" id="end-time"></div>
+    <div class="form-group"><label>制限時間(秒)</label><input type="number" id="time-limit" value="1800"></div>
+    <div class="form-group"><label>自動送信</label><select id="auto-submit"><option value="true">ON</option><option value="false">OFF</option></select></div>
+    <div class="form-group"><label>問題シャッフル</label><select id="rand-q"><option value="true">ON</option><option value="false">OFF</option></select></div>
+    <div class="form-group"><label>テーマカラー</label><input type="color" id="theme-color" value="#1565c0" style="flex:none; width:100px;"></div>
+  </div>
+
+  <div class="section">
+    <h2>問題リスト</h2>
+    <div id="questions-container"></div>
+    <button class="btn btn-success" onclick="addQuestion()">+ 問題を追加</button>
+  </div>
+
+  <div class="section" style="text-align:center;">
+    <button class="btn" style="font-size:1.2em; padding:15px 30px;" onclick="exportJSON()">設定ファイル(config.json)として保存</button>
+    <button class="btn" style="background:#ff9800; font-size:1.2em; padding:15px 30px;" onclick="exportCSV()">問題一覧をCSVで保存</button>
+  </div>
+</div>
+
+<script>
+let questions = [];
+
+function addQuestion() {
+  const q = { id: 'q'+Date.now(), type: 'single', text: '', options: ['選択肢1', '選択肢2'], answer: [0], score: 10, difficulty: '普' };
+  questions.push(q);
+  renderQuestions();
+}
+
+function removeQuestion(index) {
+  questions.splice(index, 1);
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  
+  questions.forEach((q, qIndex) => {
+    let optHtml = '';
+    
+    if(q.type === 'single' || q.type === 'multiple') {
+      optHtml += `<div><b>選択肢設定 (正解にチェック):</b></div>`;
+      q.options.forEach((opt, oIndex) => {
+        const isChecked = q.answer.includes(oIndex) ? 'checked' : '';
+        const inputType = q.type === 'single' ? 'radio' : 'checkbox';
+        optHtml += `
+          <div class="opt-row">
+            <input type="${inputType}" name="ans_${q.id}" ${isChecked} onchange="updateAnswer(${qIndex}, ${oIndex}, this.checked)">
+            <input type="text" value="${opt}" oninput="updateOption(${qIndex}, ${oIndex}, this.value)">
+            <button class="btn-danger" style="padding:2px 5px;" onclick="removeOption(${qIndex}, ${oIndex})">×</button>
+          </div>
+        `;
+      });
+      optHtml += `<button class="btn" style="padding:2px 8px; font-size:0.8em;" onclick="addOption(${qIndex})">+ 選択肢追加</button>`;
+    } else if (q.type === 'tf') {
+      optHtml += `<p>※○×問題は自動的に「○」「×」が選択肢になります。</p>
+        正解: <select onchange="questions[${qIndex}].answer=[parseInt(this.value)]">
+          <option value="0" ${q.answer[0]===0?'selected':''}>○</option>
+          <option value="1" ${q.answer[0]===1?'selected':''}>×</option>
+        </select>`;
+    } else if (q.type === 'text') {
+      optHtml += `<div><b>模範解答:</b></div><textarea oninput="questions[${qIndex}].answer=[this.value]">${q.answer[0]||''}</textarea>`;
+    }
+
+    const html = `
+      <div class="q-block">
+        <button class="q-delete" onclick="removeQuestion(${qIndex})">削除</button>
+        <div class="form-group">
+          <label>形式</label>
+          <select onchange="changeType(${qIndex}, this.value)">
+            <option value="single" ${q.type==='single'?'selected':''}>単一選択 (ラジオ)</option>
+            <option value="multiple" ${q.type==='multiple'?'selected':''}>複数選択 (チェック)</option>
+            <option value="tf" ${q.type==='tf'?'selected':''}>○×問題</option>
+            <option value="text" ${q.type==='text'?'selected':''}>記述問題</option>
+          </select>
+        </div>
+        <div class="form-group"><label>問題文</label><textarea oninput="questions[${qIndex}].text=this.value">${q.text}</textarea></div>
+        <div class="form-group">
+          <label>配点</label><input type="number" value="${q.score}" style="width:60px;flex:none;" oninput="questions[${qIndex}].score=parseInt(this.value)">
+          <label style="margin-left:20px;">難易度</label>
+          <select onchange="questions[${qIndex}].difficulty=this.value" style="flex:none;">
+            <option value="易" ${q.difficulty==='易'?'selected':''}>易</option>
+            <option value="普" ${q.difficulty==='普'?'selected':''}>普</option>
+            <option value="難" ${q.difficulty==='難'?'selected':''}>難</option>
+          </select>
+        </div>
+        <div style="margin-top:10px;">${optHtml}</div>
+      </div>
+    `;
+    container.innerHTML += html;
+  });
+}
+
+function changeType(qIndex, newType) {
+  const q = questions[qIndex];
+  q.type = newType;
+  if(newType === 'tf') { q.options = ['○', '×']; q.answer = [0]; }
+  else if(newType === 'text') { q.options = []; q.answer = ['']; }
+  else {
+    if(q.options.length < 2) q.options = ['選択肢1', '選択肢2'];
+    if(newType === 'single') q.answer = [0]; // 単一に切り替えたら正解を一つにする
+  }
+  renderQuestions();
+}
+
+function addOption(qIndex) { questions[qIndex].options.push('新規選択肢'); renderQuestions(); }
+function removeOption(qIndex, oIndex) { questions[qIndex].options.splice(oIndex, 1); renderQuestions(); }
+function updateOption(qIndex, oIndex, val) { questions[qIndex].options[oIndex] = val; }
+function updateAnswer(qIndex, oIndex, isChecked) {
+  const q = questions[qIndex];
+  if(q.type === 'single') q.answer = [oIndex];
+  else {
+    if(isChecked) q.answer.push(oIndex);
+    else q.answer = q.answer.filter(v => v !== oIndex);
+  }
+}
+
+function exportJSON() {
+  const configData = {
+    settings: {
+      examId: "EXAM_" + Date.now(),
+      examName: document.getElementById('exam-name').value,
+      startTime: document.getElementById('start-time').value,
+      endTime: document.getElementById('end-time').value,
+      timeLimit: parseInt(document.getElementById('time-limit').value),
+      autoSubmit: document.getElementById('auto-submit').value === "true",
+      randomQuestion: document.getElementById('rand-q').value === "true",
+      randomChoice: true,
+      themeColor: document.getElementById('theme-color').value,
+      showProgress: true,
+      showScore: true
+    },
+    questions: questions
+  };
+  
+  const blob = new Blob([JSON.stringify(configData, null, 2)], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "config.json";
+  a.click();
+}
+
+function exportCSV() {
+  // CSV用の拡張フォーマット (形式,問題文,選択肢(|区切り),正答(|区切り),配点,難易度)
+  let csv = "type,text,options,answer,score,difficulty\n";
+  questions.forEach(q => {
+    const opts = q.options.join('|');
+    const ans = q.answer.join('|');
+    // カンマを含むテキストをエスケープ
+    const cleanText = `"${q.text.replace(/"/g, '""')}"`;
+    csv += `${q.type},${cleanText},${opts},${ans},${q.score},${q.difficulty}\n`;
+  });
+  
+  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], {type: "text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "questions.csv";
+  a.click();
+}
+
+// 初期化
+window.onload = () => { addQuestion(); };
+</script>
+</body>
+</html>
